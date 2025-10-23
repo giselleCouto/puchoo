@@ -1,19 +1,17 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from starlette.responses import FileResponse
-import os
+"""
+PUCHOO AI - Backend API
+Sistema completo de Gestão de Pessoas, Folha de Pagamento e Aprendizagem Organizacional
+"""
 
-# Importar rotas do backend
+from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from app.core.config import settings
 from app.api import ponto, sst, servidor, folha, esocial, lgpd, auth
 
-# Configurações
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_DIR = os.path.join(BASE_DIR, "static")
-
 app = FastAPI(
-    title="PUCHOO AI - Full Stack",
-    description="Sistema completo de Gestão de Pessoas, Folha de Pagamento e Aprendizagem Organizacional",
+    title="PUCHOO AI API",
+    description="API completa para gestão de RH, folha de pagamento e conformidade",
     version="2.0.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc"
@@ -22,16 +20,13 @@ app = FastAPI(
 # Configuração CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Permitir todas as origens para o deploy
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Montar diretório estático (Frontend Build)
-app.mount("/assets", StaticFiles(directory=os.path.join(STATIC_DIR, "assets")), name="assets")
-
-# Rotas de Autenticação
+# Rotas de autenticação
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Autenticação"])
 
 # Rotas de Ponto Eletrônico
@@ -52,13 +47,24 @@ app.include_router(esocial.router, prefix="/api/v1/esocial", tags=["eSocial"])
 # Rotas de LGPD
 app.include_router(lgpd.router, prefix="/api/v1/lgpd", tags=["LGPD"])
 
-# Rota para servir o index.html (Frontend SPA)
-@app.get("/{full_path:path}", include_in_schema=False)
-async def serve_frontend(full_path: str):
-    # Serve index.html para todas as rotas do frontend (necessário para SPA)
-    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+@app.get("/")
+async def root():
+    """Endpoint raiz da API"""
+    return {
+        "message": "PUCHOO AI API v2.0.0",
+        "status": "online",
+        "docs": "/api/docs"
+    }
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "version": "2.0.0"}
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "version": "2.0.0"
+    }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
