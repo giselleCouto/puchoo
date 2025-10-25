@@ -5,13 +5,25 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import PontoExpandido from "./pages/PontoExpandido";
+import SST from "./pages/SST";
+import PortalServidor from "./pages/PortalServidor";
+import IntegracaoBancaria from "./pages/IntegracaoBancaria";
+import ESocialDashboard from "./pages/ESocialDashboard";
+import LGPDExpandido from "./pages/LGPDExpandido";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
+      <Route path="/" component={Home} />
+      <Route path="/ponto" component={PontoExpandido} />
+      <Route path="/sst" component={SST} />
+      <Route path="/portal-servidor" component={PortalServidor} />
+      <Route path="/integracao-bancaria" component={IntegracaoBancaria} />
+      <Route path="/esocial" component={ESocialDashboard} />
+      <Route path="/lgpd" component={LGPDExpandido} />
+      <Route path="/404" component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
@@ -40,3 +52,4 @@ function App() {
 }
 
 export default App;
+
