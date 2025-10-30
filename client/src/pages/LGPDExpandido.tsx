@@ -186,7 +186,7 @@ const LGPDExpandido = () => {
                       <TableCell className="font-mono text-sm">{cons.cpf}</TableCell>
                       <TableCell>{cons.tipo}</TableCell>
                       <TableCell>
-                        <Badge variant={cons.status === 'Ativo' ? 'success' : 'secondary'}>
+                        <Badge variant={cons.status === 'Ativo' ? 'default' : 'secondary'}>
                           {cons.status === 'Ativo' ? <Unlock className="w-3 h-3 mr-1" /> : <Lock className="w-3 h-3 mr-1" />}
                           {cons.status}
                         </Badge>
@@ -275,8 +275,8 @@ const LGPDExpandido = () => {
                       <TableCell className="text-sm">{sol.prazo}</TableCell>
                       <TableCell>
                         <Badge variant={
-                          sol.status === 'Concluída' ? 'success' :
-                          sol.status === 'Em Análise' ? 'default' : 'warning'
+                          sol.status === 'Concluída' ? 'default' :
+                          sol.status === 'Em Análise' ? 'secondary' : 'destructive'
                         }>
                           {sol.status}
                         </Badge>
@@ -357,7 +357,7 @@ const LGPDExpandido = () => {
                       <TableCell className="text-sm">{log.data}</TableCell>
                       <TableCell className="font-mono text-sm">{log.ip}</TableCell>
                       <TableCell>
-                        <Badge variant={log.resultado === 'Sucesso' ? 'success' : 'destructive'}>
+                        <Badge variant={log.resultado === 'Sucesso' ? 'default' : 'destructive'}>
                           {log.resultado}
                         </Badge>
                       </TableCell>

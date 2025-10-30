@@ -13,8 +13,10 @@ import {
   TrendingUp, BarChart3, FileWarning, Stethoscope
 } from 'lucide-react';
 
+type ModalType = 'novoExame' | 'novoASO' | 'novoRisco' | 'novaCAT' | null;
+
 const SST = () => {
-  const [modalAberto, setModalAberto] = useState(null);
+  const [modalAberto, setModalAberto] = useState<ModalType>(null);
 
   // Dados simulados
   const estatisticas = {
@@ -223,8 +225,8 @@ const SST = () => {
                       <TableCell>{aso.validade}</TableCell>
                       <TableCell>
                         <Badge variant={
-                          aso.resultado === 'Apto' ? 'success' :
-                          aso.resultado === 'Apto com Restrição' ? 'warning' : 'destructive'
+                          aso.resultado === 'Apto' ? 'default' :
+                          aso.resultado === 'Apto com Restrição' ? 'secondary' : 'destructive'
                         }>
                           {aso.resultado}
                         </Badge>
@@ -277,7 +279,7 @@ const SST = () => {
                       <TableCell>
                         <Badge variant={
                           risco.nivel === 'Alto' ? 'destructive' :
-                          risco.nivel === 'Médio' ? 'warning' : 'secondary'
+                          risco.nivel === 'Médio' ? 'secondary' : 'default'
                         }>
                           {risco.nivel}
                         </Badge>
@@ -330,14 +332,14 @@ const SST = () => {
                       <TableCell>
                         <Badge variant={
                           cat.gravidade === 'Grave' ? 'destructive' :
-                          cat.gravidade === 'Moderada' ? 'warning' : 'secondary'
+                          cat.gravidade === 'Moderada' ? 'secondary' : 'default'
                         }>
                           {cat.gravidade}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-center">{cat.dias}</TableCell>
                       <TableCell>
-                        <Badge variant={cat.status === 'Concluída' ? 'success' : 'default'}>
+                        <Badge variant={cat.status === 'Concluída' ? 'default' : 'destructive'}>
                           {cat.status}
                         </Badge>
                       </TableCell>

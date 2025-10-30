@@ -78,7 +78,7 @@ const ESocialDashboard = () => {
     ]
   };
 
-  const enviarEvento = (tipo) => {
+  const enviarEvento = (tipo: string) => {
     setProcessando(true);
     setTimeout(() => {
       setProcessando(false);
@@ -246,7 +246,7 @@ const ESocialDashboard = () => {
                       <TableCell>{evento.descricao}</TableCell>
                       <TableCell className="text-sm">{evento.data}</TableCell>
                       <TableCell>
-                        <Badge variant={evento.status === 'Processado' ? 'success' : 'destructive'}>
+                        <Badge variant={evento.status === 'Processado' ? 'default' : 'destructive'}>
                           {evento.status}
                         </Badge>
                       </TableCell>
@@ -295,7 +295,7 @@ const ESocialDashboard = () => {
                       <TableCell>
                         <Badge variant={
                           evento.prioridade === 'Alta' ? 'destructive' :
-                          evento.prioridade === 'Média' ? 'warning' : 'secondary'
+                          evento.prioridade === 'Média' ? 'secondary' : 'default'
                         }>
                           {evento.prioridade}
                         </Badge>

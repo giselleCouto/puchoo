@@ -6,10 +6,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Clock, Camera, MapPin, CheckCircle, XCircle, AlertCircle, Download, Upload, Calendar, Home, Building } from 'lucide-react';
 
+interface Localizacao {
+  lat: number;
+  lng: number;
+  precisao: number;
+}
+
 const PontoExpandido = () => {
   const [registrando, setRegistrando] = useState(false);
-  const [fotoCapturada, setFotoCapturada] = useState(null);
-  const [localizacao, setLocalizacao] = useState(null);
+  const [fotoCapturada, setFotoCapturada] = useState<string | null>(null);
+  const [localizacao, setLocalizacao] = useState<Localizacao | null>(null);
   const [modoTrabalho, setModoTrabalho] = useState('presencial');
   const videoRef = useRef(null);
 
@@ -36,7 +42,7 @@ const PontoExpandido = () => {
   };
 
   // Simula registro de ponto
-  const registrarPonto = (tipo) => {
+  const registrarPonto = (tipo: string) => {
     capturarFoto();
     capturarLocalizacao();
     setTimeout(() => {
@@ -260,7 +266,7 @@ const PontoExpandido = () => {
                       <TableCell className="font-medium">{registro.tipo}</TableCell>
                       <TableCell>{registro.horario}</TableCell>
                       <TableCell>
-                        <Badge variant={registro.status === 'Normal' ? 'success' : 'warning'}>
+                        <Badge variant={registro.status === 'Normal' ? 'default' : 'secondary'}>
                           {registro.status}
                         </Badge>
                       </TableCell>
@@ -303,8 +309,8 @@ const PontoExpandido = () => {
                       <TableCell className="font-semibold">{dia.total}</TableCell>
                       <TableCell>
                         <Badge variant={
-                          dia.status === 'Completo' ? 'success' : 
-                          dia.status === 'Atraso' ? 'warning' : 'destructive'
+                          dia.status === 'Completo' ? 'default' : 
+                          dia.status === 'Atraso' ? 'secondary' : 'destructive'
                         }>
                           {dia.status}
                         </Badge>
@@ -355,8 +361,8 @@ const PontoExpandido = () => {
                       <TableCell>{just.motivo}</TableCell>
                       <TableCell>
                         <Badge variant={
-                          just.status === 'Aprovado' ? 'success' : 
-                          just.status === 'Pendente' ? 'warning' : 'destructive'
+                          just.status === 'Aprovado' ? 'default' : 
+                          just.status === 'Pendente' ? 'secondary' : 'destructive'
                         }>
                           {just.status}
                         </Badge>

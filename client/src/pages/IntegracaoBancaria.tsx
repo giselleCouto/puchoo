@@ -163,7 +163,7 @@ const IntegracaoBancaria = () => {
                   <div className="text-center">
                     <div className="text-5xl mb-2">{banco.logo}</div>
                     <h3 className="font-bold text-lg mb-2">{banco.nome}</h3>
-                    <Badge variant={banco.status === 'Conectado' ? 'success' : 'secondary'} className="mb-3">
+                    <Badge variant={banco.status === 'Conectado' ? 'default' : 'secondary'} className="mb-3">
                       {banco.status}
                     </Badge>
                     {banco.status === 'Conectado' && (
@@ -395,7 +395,7 @@ const IntegracaoBancaria = () => {
                       </TableCell>
                       <TableCell>{trx.banco}</TableCell>
                       <TableCell>
-                        <Badge variant={trx.status === 'Sucesso' ? 'success' : 'destructive'}>
+                        <Badge variant={trx.status === 'Sucesso' ? 'default' : 'destructive'}>
                           {trx.status}
                         </Badge>
                       </TableCell>
