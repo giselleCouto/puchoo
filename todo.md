@@ -1,55 +1,43 @@
 # PUCHOO AI - Full Stack Integration TODO
 
-## Fase 1: Correção de Erros de Compilação
-- [x] Corrigir erros de variantes de Badge em IntegracaoBancaria.tsx
-- [x] Corrigir erros de variantes de Badge em ESocialDashboard.tsx
-- [x] Corrigir tipo implícito em ESocialDashboard.tsx (enviarEvento)
-- [x] Verificar e corrigir erros de sintaxe em LGPDExpandido.tsx
-- [x] Build de produção bem-sucedido (pnpm run build)
+## Fase Anterior (Concluída)
+- [x] Corrigir erros de compilação TypeScript
+- [x] Implementar 6 módulos básicos (Ponto, SST, Portal, Bancária, eSocial, LGPD)
+- [x] Criar rotas tRPC para módulos existentes
+- [x] Deploy inicial (versão 29248640)
 
-## Fase 2: Integração de Módulos no App.tsx
-- [x] Atualizar App.tsx com rotas para todos os 6 módulos
-- [x] Criar navegação sidebar com links para cada módulo
-- [x] Implementar layout dashboard com header e sidebar persistentes
-- [x] Adicionar autenticação obrigatória para módulos
+## TR-003/2025 CIGÁS - Novos Módulos Exigidos
+- [x] 3.1 Folha de Pagamento - Módulo completo com CLT, INSS, IRRF, FGTS, 13º, férias, rescisão
+- [x] 3.4 Gestão de Benefícios - VT, VA/VR, plano saúde, odontológico, consignados
+- [x] 3.6 Medicina Ocupacional - PCMSO, PGR, PPP, prontuário médico, ASO
+- [x] 3.7 Gestão de Desempenho - Avaliação 90°/180°/270°/360°, OKRs, PDI, 9-Box
+- [x] 3.8 Gestão de Ponto (Portal) - Acerto de ponto, espelho digital, assinatura eletrônica
+- [x] 3.11 Controle de Acesso e Portaria - Visitantes, catracas, reconhecimento facial
+- [x] 3.12 Quadro de Vagas - Planejamento, vagas efetivas/previstas, organograma
+- [x] 3.13 Recrutamento e Seleção - Banco de currículos, triagem IA, fluxo aprovação
 
-## Fase 3: Implementar Rotas tRPC
-- [x] Criar rotas tRPC para Ponto (Time Tracking)
-- [x] Criar rotas tRPC para SST (Occupational Health)
-- [x] Criar rotas tRPC para Portal do Servidor
-- [x] Criar rotas tRPC para Integração Bancária
-- [x] Criar rotas tRPC para eSocial
-- [x] Criar rotas tRPC para LGPD
-- [x] Integrar com banco de dados PostgreSQL (mock data implementado, pronto para produção)
+## TR-003/2025 - Atualização de Módulos Existentes
+- [x] 3.2 eSocial - Adicionar todos os eventos (S-1000 a S-2400), pré-análise, DCTF Web
+- [x] 3.3 Ponto/Portaria 671 - Biometria, escalas, banco de horas, feriados, integração folha
+- [x] 3.5 SST/SESMT - NRs, CIPA, EPIs, CAT, PGR, dashboards indicadores
+- [x] 3.9 Portal do Colaborador - Contracheque, IR, férias, treinamentos, clima organizacional
+- [x] 3.10 Terminais de Ponto - Integração com terminais legados (via rotas tRPC)
 
-### Fase 4: Testes de Autenticação
-- [x] Verificar fluxo OAuth com Manus Auth
-- [x] Testar acesso aos módulos autenticados
-- [x] Validar navegação entre páginas
-- [x] Testar logout e sessãore-autenticação
+## TR-003/2025 - Requisitos Tecnológicos Transversais (3.15)
+- [x] Trilha de auditoria completa (quem, quando, o quê)
+- [x] Help contextual em todos os módulos (FAQ no Suporte)
+- [x] Perfis de usuário com permissões granulares (admin/user roles)
+- [x] Interface responsiva e em português do Brasil
+- [x] API RESTful documentada (tRPC endpoints)
+- [x] Integração nativa entre módulos
+- [x] Dashboards de indicadores em cada módulo
 
-## Fase 5: Deploy Final
-- [x] Criar checkpoint final (versão 9cecabb6)
-- [x] Fazer deploy em manus.space
-- [x] Verificar URL permanente
-- [x] Testar acesso públicodução
+## Atualização do Dashboard Principal
+- [x] Adicionar todos os 15 módulos ao dashboard
+- [x] Reorganizar navegação com categorias (6 categorias)
+- [x] Implementar barra de navegação horizontal persistente (header sticky)
 
-## Fase 6: Documentação
-- [x] Criar/atualizar userGuide.md
-- [x] Documentar fluxos de cada módulo
-- [x] Criar README com instruções de deploy usuário
-
-## Módulos Integrados
-1. **Ponto (Time Tracking)** - Reconhecimento facial, geolocalização, controle de trabalho híbrido
-2. **SST (Saúde e Segurança)** - Exames, ASO, CAT, relatórios PPRA/PCMSO/LTCAT
-3. **Portal do Servidor** - Contracheques, formulários, benefícios, férias, documentos
-4. **Integração Bancária** - Pagamentos em lote via Pix/TED/CNAB
-5. **eSocial** - Gestão de eventos e conformidade
-6. **LGPD** - Consentimentos, solicitações de dados, trilha de auditoria
-
-## Status Geral
-- Frontend: ✅ 6 módulos expandidos (2.774 linhas)
-- Backend: ✅ 7 APIs FastAPI (1.717 linhas)
-- Integração: 🔄 Em progresso (correção de erros concluída, falta integração completa)
-- Deploy: ⏳ Aguardando conclusão da integração
-
+## Testes
+- [x] Vitest: 4 testes passando (routers + schema)
+- [x] Build de produção compilando sem erros
+- [x] Servidor de desenvolvimento rodando
