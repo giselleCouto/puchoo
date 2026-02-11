@@ -79,7 +79,7 @@ export default function Home() {
           <h1 className="text-4xl font-bold text-white mb-3">{APP_TITLE}</h1>
           <p className="text-slate-300 mb-2 text-lg">Sistema de Gestão de Pessoas</p>
           <p className="text-slate-400 mb-8 text-sm">
-            Conforme TR-003/2025 CIGÁS - Folha de Pagamento, eSocial, Ponto Eletrônico, SST, Benefícios, Desempenho, Recrutamento e mais.
+            Folha de Pagamento, eSocial, Ponto Eletrônico, SST, Benefícios, Desempenho, Recrutamento e mais.
           </p>
           <Button
             onClick={() => (window.location.href = getLoginUrl())}
@@ -101,7 +101,7 @@ export default function Home() {
             {APP_LOGO && <img src={APP_LOGO} alt="Logo" className="h-9 w-9" />}
             <div>
               <h1 className="text-xl font-bold text-slate-900">{APP_TITLE}</h1>
-              <p className="text-xs text-slate-500">TR-003/2025 CIGÁS | Bem-vindo, {user?.name || "Usuário"}</p>
+              <p className="text-xs text-slate-500">Bem-vindo, {user?.name || "Usuário"}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -120,7 +120,7 @@ export default function Home() {
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-slate-900 mb-1">Módulos do Sistema</h2>
           <p className="text-slate-600 text-sm">
-            Gestão completa de pessoas conforme Termo de Referência TR-003/2025 da CIGÁS.
+            Gestão completa de pessoas para sua organização.
           </p>
         </div>
 
@@ -157,7 +157,7 @@ export default function Home() {
         <div className="mt-10 bg-white rounded-lg shadow-sm p-6 border border-slate-200">
           <h3 className="text-base font-semibold text-slate-900 mb-3">Sobre o Sistema</h3>
           <p className="text-sm text-slate-600 mb-4">
-            Sistema integrado de Gestão de Pessoas desenvolvido conforme o Termo de Referência TR-003/2025 da CIGÁS, 
+            Sistema integrado de Gestão de Pessoas desenvolvido para atender às necessidades da sua organização, 
             contemplando 15 módulos para gestão completa de folha de pagamento, eSocial, ponto eletrônico (Portaria 671), 
             benefícios, SST/SESMT, medicina ocupacional, desempenho, portal do colaborador, controle de acesso, 
             quadro de vagas, recrutamento e seleção, LGPD e auditoria.

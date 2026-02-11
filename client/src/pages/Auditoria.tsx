@@ -49,7 +49,7 @@ export default function Auditoria() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><ScrollText className="w-5 h-5" />Logs de Auditoria</CardTitle>
-            <CardDescription>Rastreabilidade completa conforme TR-003/2025 item 3.15.2</CardDescription>
+            <CardDescription>Rastreabilidade completa de todas as ações do sistema</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
