@@ -61,7 +61,7 @@ const SST = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">SST - Saúde e Segurança do Trabalho</h1>
-          <p className="text-gray-500">Gestão completa de saúde ocupacional e segurança</p>
+          <p className="text-puchoo-terracotta">Gestão completa de saúde ocupacional e segurança</p>
         </div>
         <Badge variant="default" className="text-lg px-4 py-2">
           <Shield className="w-4 h-4 mr-2" />
@@ -75,10 +75,10 @@ const SST = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Exames Pendentes</p>
+                <p className="text-sm text-puchoo-terracotta">Exames Pendentes</p>
                 <p className="text-3xl font-bold">{estatisticas.examesPendentes}</p>
               </div>
-              <Stethoscope className="w-10 h-10 text-blue-500" />
+              <Stethoscope className="w-10 h-10 text-puchoo-green" />
             </div>
           </CardContent>
         </Card>
@@ -87,10 +87,10 @@ const SST = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">ASOs Vencendo</p>
-                <p className="text-3xl font-bold text-orange-600">{estatisticas.asosVencendo}</p>
+                <p className="text-sm text-puchoo-terracotta">ASOs Vencendo</p>
+                <p className="text-3xl font-bold text-puchoo-coral">{estatisticas.asosVencendo}</p>
               </div>
-              <Clock className="w-10 h-10 text-orange-500" />
+              <Clock className="w-10 h-10 text-puchoo-coral" />
             </div>
           </CardContent>
         </Card>
@@ -99,10 +99,10 @@ const SST = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Riscos Críticos</p>
-                <p className="text-3xl font-bold text-red-600">{estatisticas.riscosCriticos}</p>
+                <p className="text-sm text-puchoo-terracotta">Riscos Críticos</p>
+                <p className="text-3xl font-bold text-puchoo-coral">{estatisticas.riscosCriticos}</p>
               </div>
-              <AlertTriangle className="w-10 h-10 text-red-500" />
+              <AlertTriangle className="w-10 h-10 text-puchoo-coral" />
             </div>
           </CardContent>
         </Card>
@@ -111,10 +111,10 @@ const SST = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">CATs Abertas</p>
+                <p className="text-sm text-puchoo-terracotta">CATs Abertas</p>
                 <p className="text-3xl font-bold">{estatisticas.catAbertas}</p>
               </div>
-              <FileWarning className="w-10 h-10 text-yellow-500" />
+              <FileWarning className="w-10 h-10 text-puchoo-terracotta" />
             </div>
           </CardContent>
         </Card>
@@ -123,10 +123,10 @@ const SST = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Conformidade</p>
-                <p className="text-3xl font-bold text-green-600">{estatisticas.conformidade}%</p>
+                <p className="text-sm text-puchoo-terracotta">Conformidade</p>
+                <p className="text-3xl font-bold text-puchoo-green">{estatisticas.conformidade}%</p>
               </div>
-              <CheckCircle className="w-10 h-10 text-green-500" />
+              <CheckCircle className="w-10 h-10 text-puchoo-green" />
             </div>
           </CardContent>
         </Card>
@@ -368,7 +368,7 @@ const SST = () => {
                       <div className="flex items-start justify-between mb-4">
                         <div>
                           <h3 className="font-bold text-lg">{rel.nome}</h3>
-                          <p className="text-sm text-gray-500">{rel.tipo}</p>
+                          <p className="text-sm text-puchoo-terracotta">{rel.tipo}</p>
                         </div>
                         <Badge variant="default">{rel.status}</Badge>
                       </div>

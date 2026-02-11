@@ -77,7 +77,7 @@ const IntegracaoBancaria = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Integração Bancária</h1>
-          <p className="text-gray-500">Pagamentos em lote via Pix, TED e CNAB</p>
+          <p className="text-puchoo-terracotta">Pagamentos em lote via Pix, TED e CNAB</p>
         </div>
         <Badge variant="default" className="text-lg px-4 py-2">
           <CheckCircle className="w-4 h-4 mr-2" />
@@ -91,10 +91,10 @@ const IntegracaoBancaria = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Pagamentos Hoje</p>
+                <p className="text-sm text-puchoo-terracotta">Pagamentos Hoje</p>
                 <p className="text-3xl font-bold">{estatisticas.pagamentosHoje}</p>
               </div>
-              <Send className="w-10 h-10 text-blue-500" />
+              <Send className="w-10 h-10 text-puchoo-green" />
             </div>
           </CardContent>
         </Card>
@@ -103,12 +103,12 @@ const IntegracaoBancaria = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Valor Total</p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-sm text-puchoo-terracotta">Valor Total</p>
+                <p className="text-2xl font-bold text-puchoo-green">
                   R$ {(estatisticas.valorTotal / 1000).toFixed(0)}k
                 </p>
               </div>
-              <DollarSign className="w-10 h-10 text-green-500" />
+              <DollarSign className="w-10 h-10 text-puchoo-green" />
             </div>
           </CardContent>
         </Card>
@@ -117,10 +117,10 @@ const IntegracaoBancaria = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Pendentes</p>
-                <p className="text-3xl font-bold text-orange-600">{estatisticas.pendentes}</p>
+                <p className="text-sm text-puchoo-terracotta">Pendentes</p>
+                <p className="text-3xl font-bold text-puchoo-coral">{estatisticas.pendentes}</p>
               </div>
-              <Clock className="w-10 h-10 text-orange-500" />
+              <Clock className="w-10 h-10 text-puchoo-coral" />
             </div>
           </CardContent>
         </Card>
@@ -129,10 +129,10 @@ const IntegracaoBancaria = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Falhas</p>
-                <p className="text-3xl font-bold text-red-600">{estatisticas.falhas}</p>
+                <p className="text-sm text-puchoo-terracotta">Falhas</p>
+                <p className="text-3xl font-bold text-puchoo-coral">{estatisticas.falhas}</p>
               </div>
-              <XCircle className="w-10 h-10 text-red-500" />
+              <XCircle className="w-10 h-10 text-puchoo-coral" />
             </div>
           </CardContent>
         </Card>
@@ -141,10 +141,10 @@ const IntegracaoBancaria = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Taxa Sucesso</p>
-                <p className="text-3xl font-bold text-green-600">{estatisticas.taxasSucesso}%</p>
+                <p className="text-sm text-puchoo-terracotta">Taxa Sucesso</p>
+                <p className="text-3xl font-bold text-puchoo-green">{estatisticas.taxasSucesso}%</p>
               </div>
-              <TrendingUp className="w-10 h-10 text-green-500" />
+              <TrendingUp className="w-10 h-10 text-puchoo-green" />
             </div>
           </CardContent>
         </Card>
@@ -158,7 +158,7 @@ const IntegracaoBancaria = () => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {bancos.map((banco) => (
-              <Card key={banco.id} className={`border-2 ${banco.status === 'Conectado' ? 'border-green-500' : 'border-gray-300'}`}>
+              <Card key={banco.id} className={`border-2 ${banco.status === 'Conectado' ? 'border-puchoo-green' : 'border-puchoo-warm-200'}`}>
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <div className="text-5xl mb-2">{banco.logo}</div>
@@ -168,8 +168,8 @@ const IntegracaoBancaria = () => {
                     </Badge>
                     {banco.status === 'Conectado' && (
                       <div className="mt-3">
-                        <p className="text-sm text-gray-500">Saldo Disponível</p>
-                        <p className="text-xl font-bold text-green-600">
+                        <p className="text-sm text-puchoo-terracotta">Saldo Disponível</p>
+                        <p className="text-xl font-bold text-puchoo-green">
                           R$ {banco.saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </p>
                       </div>
@@ -236,21 +236,21 @@ const IntegracaoBancaria = () => {
                 </div>
               </div>
 
-              <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="bg-puchoo-green-50 p-4 rounded-lg">
                 <h3 className="font-bold mb-2">Resumo do Pagamento</h3>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <p className="text-sm text-gray-600">Total de Funcionários</p>
+                    <p className="text-sm text-puchoo-terracotta">Total de Funcionários</p>
                     <p className="text-2xl font-bold">{pagamentosPendentes.length}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Valor Total</p>
-                    <p className="text-2xl font-bold text-green-600">
+                    <p className="text-sm text-puchoo-terracotta">Valor Total</p>
+                    <p className="text-2xl font-bold text-puchoo-green">
                       R$ {pagamentosPendentes.reduce((sum, p) => sum + p.valor, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Taxa Estimada</p>
+                    <p className="text-sm text-puchoo-terracotta">Taxa Estimada</p>
                     <p className="text-2xl font-bold">
                       R$ {tipoPagamento === 'ted' ? (pagamentosPendentes.length * 8.50).toFixed(2) : '0,00'}
                     </p>
@@ -282,7 +282,7 @@ const IntegracaoBancaria = () => {
                       <TableCell className="font-mono text-sm">{pag.cpf}</TableCell>
                       <TableCell>{pag.tipo}</TableCell>
                       <TableCell>{pag.competencia}</TableCell>
-                      <TableCell className="font-bold text-green-600">
+                      <TableCell className="font-bold text-puchoo-green">
                         R$ {pag.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </TableCell>
                     </TableRow>
@@ -344,7 +344,7 @@ const IntegracaoBancaria = () => {
                         <Badge variant="outline">{pag.tipo}</Badge>
                       </TableCell>
                       <TableCell className="text-center">{pag.funcionarios}</TableCell>
-                      <TableCell className="font-bold text-green-600">
+                      <TableCell className="font-bold text-puchoo-green">
                         R$ {pag.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </TableCell>
                       <TableCell className="text-sm">{pag.banco}</TableCell>

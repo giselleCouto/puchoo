@@ -74,7 +74,7 @@ const PontoExpandido = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Ponto Eletrônico Avançado</h1>
-          <p className="text-gray-500">Registro com reconhecimento facial e geolocalização</p>
+          <p className="text-puchoo-terracotta">Registro com reconhecimento facial e geolocalização</p>
         </div>
         <Badge variant={modoTrabalho === 'presencial' ? 'default' : 'secondary'} className="text-lg px-4 py-2">
           {modoTrabalho === 'presencial' ? <Building className="w-4 h-4 mr-2" /> : <Home className="w-4 h-4 mr-2" />}
@@ -106,7 +106,7 @@ const PontoExpandido = () => {
                   <div className="text-5xl font-bold mb-2">
                     {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                   </div>
-                  <div className="text-gray-500">
+                  <div className="text-puchoo-terracotta">
                     {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                   </div>
                   <div className="mt-4 space-y-2">
@@ -132,25 +132,25 @@ const PontoExpandido = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="bg-gray-100 rounded-lg h-48 flex items-center justify-center">
+                  <div className="bg-puchoo-warm-100 rounded-lg h-48 flex items-center justify-center">
                     {fotoCapturada ? (
                       <div className="text-center">
-                        <div className="w-32 h-32 bg-blue-200 rounded-full mx-auto mb-2 flex items-center justify-center">
-                          <CheckCircle className="w-16 h-16 text-green-600" />
+                        <div className="w-32 h-32 bg-puchoo-green-light rounded-full mx-auto mb-2 flex items-center justify-center">
+                          <CheckCircle className="w-16 h-16 text-puchoo-green" />
                         </div>
-                        <p className="text-sm text-green-600 font-semibold">Face reconhecida!</p>
+                        <p className="text-sm text-puchoo-green font-semibold">Face reconhecida!</p>
                       </div>
                     ) : registrando ? (
                       <div className="text-center">
                         <div className="animate-pulse">
-                          <Camera className="w-16 h-16 text-gray-400 mx-auto mb-2" />
-                          <p className="text-sm text-gray-500">Capturando...</p>
+                          <Camera className="w-16 h-16 text-puchoo-terracotta-light mx-auto mb-2" />
+                          <p className="text-sm text-puchoo-terracotta">Capturando...</p>
                         </div>
                       </div>
                     ) : (
                       <div className="text-center">
-                        <Camera className="w-16 h-16 text-gray-400 mx-auto mb-2" />
-                        <p className="text-sm text-gray-500">Aguardando captura</p>
+                        <Camera className="w-16 h-16 text-puchoo-terracotta-light mx-auto mb-2" />
+                        <p className="text-sm text-puchoo-terracotta">Aguardando captura</p>
                       </div>
                     )}
                   </div>
@@ -171,19 +171,19 @@ const PontoExpandido = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="bg-gray-100 rounded-lg h-48 flex items-center justify-center">
+                  <div className="bg-puchoo-warm-100 rounded-lg h-48 flex items-center justify-center">
                     {localizacao ? (
                       <div className="text-center p-4">
-                        <MapPin className="w-12 h-12 text-green-600 mx-auto mb-2" />
+                        <MapPin className="w-12 h-12 text-puchoo-green mx-auto mb-2" />
                         <p className="text-xs font-semibold mb-1">Localização Validada</p>
-                        <p className="text-xs text-gray-600">Lat: {localizacao.lat.toFixed(6)}</p>
-                        <p className="text-xs text-gray-600">Lng: {localizacao.lng.toFixed(6)}</p>
-                        <p className="text-xs text-green-600 mt-2">Precisão: {localizacao.precisao.toFixed(0)}m</p>
+                        <p className="text-xs text-puchoo-terracotta">Lat: {localizacao.lat.toFixed(6)}</p>
+                        <p className="text-xs text-puchoo-terracotta">Lng: {localizacao.lng.toFixed(6)}</p>
+                        <p className="text-xs text-puchoo-green mt-2">Precisão: {localizacao.precisao.toFixed(0)}m</p>
                       </div>
                     ) : (
                       <div className="text-center">
-                        <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-2" />
-                        <p className="text-sm text-gray-500">Aguardando GPS</p>
+                        <MapPin className="w-16 h-16 text-puchoo-terracotta-light mx-auto mb-2" />
+                        <p className="text-sm text-puchoo-terracotta">Aguardando GPS</p>
                       </div>
                     )}
                   </div>
@@ -204,7 +204,7 @@ const PontoExpandido = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Button 
                   onClick={() => registrarPonto('Entrada')} 
-                  className="h-20 text-lg bg-green-600 hover:bg-green-700"
+                  className="h-20 text-lg bg-puchoo-green hover:bg-puchoo-green-dark"
                   disabled={!fotoCapturada || !localizacao}
                 >
                   <Clock className="w-6 h-6 mr-2" />
@@ -212,7 +212,7 @@ const PontoExpandido = () => {
                 </Button>
                 <Button 
                   onClick={() => registrarPonto('Saída Almoço')} 
-                  className="h-20 text-lg bg-orange-600 hover:bg-orange-700"
+                  className="h-20 text-lg bg-puchoo-orange hover:bg-puchoo-orange-dark"
                   disabled={!fotoCapturada || !localizacao}
                 >
                   <Clock className="w-6 h-6 mr-2" />
@@ -220,7 +220,7 @@ const PontoExpandido = () => {
                 </Button>
                 <Button 
                   onClick={() => registrarPonto('Retorno Almoço')} 
-                  className="h-20 text-lg bg-blue-600 hover:bg-blue-700"
+                  className="h-20 text-lg bg-puchoo-green hover:bg-puchoo-green-dark"
                   disabled={!fotoCapturada || !localizacao}
                 >
                   <Clock className="w-6 h-6 mr-2" />
@@ -228,7 +228,7 @@ const PontoExpandido = () => {
                 </Button>
                 <Button 
                   onClick={() => registrarPonto('Saída')} 
-                  className="h-20 text-lg bg-red-600 hover:bg-red-700"
+                  className="h-20 text-lg bg-puchoo-coral hover:bg-puchoo-coral-dark"
                   disabled={!fotoCapturada || !localizacao}
                 >
                   <Clock className="w-6 h-6 mr-2" />
@@ -236,7 +236,7 @@ const PontoExpandido = () => {
                 </Button>
               </div>
               {(!fotoCapturada || !localizacao) && (
-                <p className="text-sm text-amber-600 mt-4 text-center">
+                <p className="text-sm text-puchoo-orange-dark mt-4 text-center">
                   <AlertCircle className="w-4 h-4 inline mr-1" />
                   Capture a foto e a localização antes de registrar o ponto
                 </p>
@@ -270,9 +270,9 @@ const PontoExpandido = () => {
                           {registro.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-sm text-gray-600">{registro.localizacao}</TableCell>
+                      <TableCell className="text-sm text-puchoo-terracotta">{registro.localizacao}</TableCell>
                       <TableCell>
-                        {registro.foto && <CheckCircle className="w-5 h-5 text-green-600" />}
+                        {registro.foto && <CheckCircle className="w-5 h-5 text-puchoo-green" />}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -368,7 +368,7 @@ const PontoExpandido = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {just.anexo && <CheckCircle className="w-5 h-5 text-green-600" />}
+                        {just.anexo && <CheckCircle className="w-5 h-5 text-puchoo-green" />}
                       </TableCell>
                       <TableCell>
                         <Button variant="outline" size="sm">Ver Detalhes</Button>

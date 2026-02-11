@@ -67,7 +67,7 @@ const LGPDExpandido = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">LGPD - Gestão de Privacidade</h1>
-          <p className="text-gray-500">Conformidade com a Lei Geral de Proteção de Dados</p>
+          <p className="text-puchoo-terracotta">Conformidade com a Lei Geral de Proteção de Dados</p>
         </div>
         <Badge variant="default" className="text-lg px-4 py-2">
           <Shield className="w-4 h-4 mr-2" />
@@ -81,10 +81,10 @@ const LGPDExpandido = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Titulares</p>
+                <p className="text-sm text-puchoo-terracotta">Titulares</p>
                 <p className="text-3xl font-bold">{estatisticas.titulares}</p>
               </div>
-              <Users className="w-10 h-10 text-blue-500" />
+              <Users className="w-10 h-10 text-puchoo-green" />
             </div>
           </CardContent>
         </Card>
@@ -93,10 +93,10 @@ const LGPDExpandido = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Consentimentos</p>
-                <p className="text-3xl font-bold text-green-600">{estatisticas.consentimentosAtivos}</p>
+                <p className="text-sm text-puchoo-terracotta">Consentimentos</p>
+                <p className="text-3xl font-bold text-puchoo-green">{estatisticas.consentimentosAtivos}</p>
               </div>
-              <CheckCircle className="w-10 h-10 text-green-500" />
+              <CheckCircle className="w-10 h-10 text-puchoo-green" />
             </div>
           </CardContent>
         </Card>
@@ -105,10 +105,10 @@ const LGPDExpandido = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Solicitações</p>
-                <p className="text-3xl font-bold text-orange-600">{estatisticas.solicitacoesPendentes}</p>
+                <p className="text-sm text-puchoo-terracotta">Solicitações</p>
+                <p className="text-3xl font-bold text-puchoo-coral">{estatisticas.solicitacoesPendentes}</p>
               </div>
-              <Clock className="w-10 h-10 text-orange-500" />
+              <Clock className="w-10 h-10 text-puchoo-coral" />
             </div>
           </CardContent>
         </Card>
@@ -117,10 +117,10 @@ const LGPDExpandido = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Incidentes</p>
-                <p className="text-3xl font-bold text-green-600">{estatisticas.incidentes}</p>
+                <p className="text-sm text-puchoo-terracotta">Incidentes</p>
+                <p className="text-3xl font-bold text-puchoo-green">{estatisticas.incidentes}</p>
               </div>
-              <AlertTriangle className="w-10 h-10 text-green-500" />
+              <AlertTriangle className="w-10 h-10 text-puchoo-green" />
             </div>
           </CardContent>
         </Card>
@@ -129,10 +129,10 @@ const LGPDExpandido = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Conformidade</p>
-                <p className="text-3xl font-bold text-green-600">{estatisticas.conformidade}%</p>
+                <p className="text-sm text-puchoo-terracotta">Conformidade</p>
+                <p className="text-3xl font-bold text-puchoo-green">{estatisticas.conformidade}%</p>
               </div>
-              <Shield className="w-10 h-10 text-green-500" />
+              <Shield className="w-10 h-10 text-puchoo-green" />
             </div>
           </CardContent>
         </Card>
@@ -244,8 +244,8 @@ const LGPDExpandido = () => {
               <CardTitle>Solicitações de Titulares</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-900">
+              <div className="mb-4 p-4 bg-puchoo-green-50 rounded-lg">
+                <p className="text-sm text-puchoo-green-dark">
                   <strong>Prazo Legal:</strong> As solicitações devem ser respondidas em até 15 dias, 
                   podendo ser prorrogado por mais 15 dias mediante justificativa.
                 </p>
@@ -301,30 +301,30 @@ const LGPDExpandido = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Card className="border-2">
                   <CardContent className="pt-6 text-center">
-                    <Eye className="w-8 h-8 mx-auto mb-2 text-blue-500" />
+                    <Eye className="w-8 h-8 mx-auto mb-2 text-puchoo-green" />
                     <h3 className="font-bold">Acesso</h3>
-                    <p className="text-sm text-gray-600">Solicitar cópia dos dados</p>
+                    <p className="text-sm text-puchoo-terracotta">Solicitar cópia dos dados</p>
                   </CardContent>
                 </Card>
                 <Card className="border-2">
                   <CardContent className="pt-6 text-center">
-                    <FileText className="w-8 h-8 mx-auto mb-2 text-green-500" />
+                    <FileText className="w-8 h-8 mx-auto mb-2 text-puchoo-green" />
                     <h3 className="font-bold">Retificação</h3>
-                    <p className="text-sm text-gray-600">Corrigir dados incorretos</p>
+                    <p className="text-sm text-puchoo-terracotta">Corrigir dados incorretos</p>
                   </CardContent>
                 </Card>
                 <Card className="border-2">
                   <CardContent className="pt-6 text-center">
-                    <XCircle className="w-8 h-8 mx-auto mb-2 text-red-500" />
+                    <XCircle className="w-8 h-8 mx-auto mb-2 text-puchoo-coral" />
                     <h3 className="font-bold">Exclusão</h3>
-                    <p className="text-sm text-gray-600">Remover dados pessoais</p>
+                    <p className="text-sm text-puchoo-terracotta">Remover dados pessoais</p>
                   </CardContent>
                 </Card>
                 <Card className="border-2">
                   <CardContent className="pt-6 text-center">
-                    <Download className="w-8 h-8 mx-auto mb-2 text-purple-500" />
+                    <Download className="w-8 h-8 mx-auto mb-2 text-puchoo-green" />
                     <h3 className="font-bold">Portabilidade</h3>
-                    <p className="text-sm text-gray-600">Transferir dados</p>
+                    <p className="text-sm text-puchoo-terracotta">Transferir dados</p>
                   </CardContent>
                 </Card>
               </div>

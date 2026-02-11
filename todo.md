@@ -66,3 +66,15 @@
 ## Remoção de Números de Seção dos Cards
 - [x] Remover números de seção das descrições dos módulos no Home.tsx e AdminPermissoes.tsx
 - [x] Verificar build e push para GitHub
+
+## Personalização de Branding - Puchoo / Nokahi
+- [x] Upload da logo puchooAI_logo.png para CDN
+- [x] Atualizar VITE_APP_TITLE para "Puchoo" (via Management UI)
+- [x] Atualizar VITE_APP_LOGO com logo fornecida (via Management UI)
+- [x] Refazer paleta de cores baseada na logo (verdes, laranjas, terracota, coral)
+- [x] Atualizar index.css com nova identidade visual
+- [x] Atualizar Home.tsx com branding Puchoo e informações Nokahi
+- [x] Atualizar header e rodapé em todas as páginas
+- [x] Atualizar 19 páginas de módulos com nova paleta
+- [x] Garantir que clientes possam alterar branding via Settings (VITE_APP_TITLE/VITE_APP_LOGO)
+- [ ] Verificar build e push para GitHub

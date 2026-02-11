@@ -26,10 +26,10 @@ const MODULOS = [
 ];
 
 const PERFIS_PADRAO = [
-  { nome: "Administrador", descricao: "Acesso total a todos os módulos", cor: "bg-red-100 text-red-800" },
-  { nome: "RH", descricao: "Gestão de pessoal, folha, benefícios e recrutamento", cor: "bg-blue-100 text-blue-800" },
-  { nome: "Gestor", descricao: "Avaliações, ponto da equipe e portal", cor: "bg-emerald-100 text-emerald-800" },
-  { nome: "Colaborador", descricao: "Portal do colaborador e autoatendimento", cor: "bg-slate-100 text-slate-800" },
+  { nome: "Administrador", descricao: "Acesso total a todos os módulos", cor: "bg-puchoo-coral-light/30 text-puchoo-coral" },
+  { nome: "RH", descricao: "Gestão de pessoal, folha, benefícios e recrutamento", cor: "bg-puchoo-green-50 text-puchoo-green-dark" },
+  { nome: "Gestor", descricao: "Avaliações, ponto da equipe e portal", cor: "bg-puchoo-green-50 text-puchoo-green-dark" },
+  { nome: "Colaborador", descricao: "Portal do colaborador e autoatendimento", cor: "bg-puchoo-warm-100 text-puchoo-green-dark" },
 ];
 
 export default function AdminPermissoes() {
@@ -61,12 +61,12 @@ export default function AdminPermissoes() {
 
   if (user?.role !== "admin") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-puchoo-warm-50">
         <Card className="max-w-md">
           <CardContent className="pt-6 text-center">
-            <Shield className="w-16 h-16 mx-auto text-red-400 mb-4" />
-            <h2 className="text-xl font-bold text-slate-900 mb-2">Acesso Restrito</h2>
-            <p className="text-slate-500 mb-4">Esta área é restrita a administradores do sistema.</p>
+            <Shield className="w-16 h-16 mx-auto text-puchoo-coral mb-4" />
+            <h2 className="text-xl font-bold text-puchoo-green-dark mb-2">Acesso Restrito</h2>
+            <p className="text-puchoo-terracotta mb-4">Esta área é restrita a administradores do sistema.</p>
             <Link href="/"><Button variant="outline">Voltar ao Dashboard</Button></Link>
           </CardContent>
         </Card>
@@ -75,17 +75,17 @@ export default function AdminPermissoes() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <header className="bg-white shadow-sm border-b border-slate-200">
+    <div className="min-h-screen bg-gradient-to-br from-puchoo-warm-50 to-puchoo-warm-100">
+      <header className="bg-white shadow-sm border-b border-puchoo-green-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4">
           <Link href="/"><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-2" />Voltar</Button></Link>
           <div className="flex items-center gap-3">
-            <div className="bg-indigo-600 w-10 h-10 rounded-lg flex items-center justify-center">
+            <div className="bg-puchoo-green-dark w-10 h-10 rounded-lg flex items-center justify-center">
               <Shield className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">Painel Administrativo</h1>
-              <p className="text-sm text-slate-500">Controle de permissões e perfis de acesso</p>
+              <h1 className="text-xl font-bold text-puchoo-green-dark">Painel Administrativo</h1>
+              <p className="text-sm text-puchoo-terracotta">Controle de permissões e perfis de acesso</p>
             </div>
           </div>
         </div>
@@ -122,8 +122,8 @@ export default function AdminPermissoes() {
               </CardHeader>
               <CardContent>
                 {showForm && (
-                  <div className="mb-6 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
-                    <h3 className="font-medium text-indigo-900 mb-3">Criar Novo Perfil</h3>
+                  <div className="mb-6 p-4 bg-puchoo-green-50 rounded-lg border border-puchoo-green-light">
+                    <h3 className="font-medium text-puchoo-green-dark mb-3">Criar Novo Perfil</h3>
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <input
                         type="text" placeholder="Nome do perfil"
@@ -136,10 +136,10 @@ export default function AdminPermissoes() {
                         className="px-3 py-2 border rounded-lg text-sm"
                       />
                     </div>
-                    <h4 className="text-sm font-medium text-indigo-800 mb-2">Permissões por Módulo:</h4>
+                    <h4 className="text-sm font-medium text-puchoo-green-dark mb-2">Permissões por Módulo:</h4>
                     <div className="grid grid-cols-3 gap-2 mb-4">
                       {MODULOS.map(m => (
-                        <label key={m.id} className="flex items-center gap-2 text-sm p-2 bg-white rounded border cursor-pointer hover:bg-indigo-50">
+                        <label key={m.id} className="flex items-center gap-2 text-sm p-2 bg-white rounded border cursor-pointer hover:bg-puchoo-green-50">
                           <input
                             type="checkbox" checked={!!permissoes[m.id]}
                             onChange={e => setPermissoes(p => ({ ...p, [m.id]: e.target.checked }))}
@@ -166,7 +166,7 @@ export default function AdminPermissoes() {
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <Badge className={p.cor}>{p.nome}</Badge>
-                          <p className="text-sm text-slate-600 mt-2">{p.descricao}</p>
+                          <p className="text-sm text-puchoo-terracotta mt-2">{p.descricao}</p>
                         </div>
                         <Button variant="outline" size="sm">Editar</Button>
                       </div>
@@ -177,7 +177,7 @@ export default function AdminPermissoes() {
                           if (p.nome === "Gestor") return [2, 6, 9].includes(idx);
                           return idx === 9;
                         }).map(m => (
-                          <span key={m.id} className="text-xs px-2 py-0.5 bg-slate-100 rounded">{m.nome}</span>
+                          <span key={m.id} className="text-xs px-2 py-0.5 bg-puchoo-warm-100 rounded">{m.nome}</span>
                         ))}
                       </div>
                     </div>
@@ -189,7 +189,7 @@ export default function AdminPermissoes() {
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <Badge className="bg-purple-100 text-purple-800">{p.nome}</Badge>
-                          <p className="text-sm text-slate-600 mt-2">{p.descricao || "Sem descrição"}</p>
+                          <p className="text-sm text-puchoo-terracotta mt-2">{p.descricao || "Sem descrição"}</p>
                         </div>
                         <Button variant="outline" size="sm">Editar</Button>
                       </div>
@@ -221,17 +221,17 @@ export default function AdminPermissoes() {
                 <div className="p-4 bg-white rounded-lg border flex justify-between items-center">
                   <div>
                     <p className="font-medium">{user?.name || "Admin"}</p>
-                    <p className="text-xs text-slate-500">{user?.email || "admin@puchoo.ai"}</p>
+                    <p className="text-xs text-puchoo-terracotta">{user?.email || "admin@puchoo.ai"}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge className="bg-red-100 text-red-800">Administrador</Badge>
+                    <Badge className="bg-puchoo-coral-light/30 text-puchoo-coral">Administrador</Badge>
                     <Badge variant="outline">Owner</Badge>
                   </div>
                 </div>
-                <div className="p-6 bg-slate-50 rounded-lg text-center">
-                  <Users className="w-12 h-12 mx-auto text-slate-300 mb-3" />
-                  <p className="text-slate-500">Novos usuários aparecerão aqui após o primeiro login via OAuth.</p>
-                  <p className="text-xs text-slate-400 mt-1">Você poderá atribuir perfis de acesso a cada usuário.</p>
+                <div className="p-6 bg-puchoo-warm-50 rounded-lg text-center">
+                  <Users className="w-12 h-12 mx-auto text-puchoo-terracotta-light mb-3" />
+                  <p className="text-puchoo-terracotta">Novos usuários aparecerão aqui após o primeiro login via OAuth.</p>
+                  <p className="text-xs text-puchoo-terracotta-light mt-1">Você poderá atribuir perfis de acesso a cada usuário.</p>
                 </div>
               </div>
             </CardContent>
@@ -248,7 +248,7 @@ export default function AdminPermissoes() {
               <div className="space-y-6">
                 {Object.entries(categorias).map(([cat, mods]) => (
                   <div key={cat}>
-                    <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">{cat}</h3>
+                    <h3 className="text-sm font-semibold text-puchoo-terracotta uppercase tracking-wider mb-3">{cat}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {mods.map(m => (
                         <div key={m.id} className="p-4 bg-white rounded-lg border hover:shadow-sm transition-shadow">
@@ -263,7 +263,7 @@ export default function AdminPermissoes() {
                                 (p.nome === "Gestor" && ["ponto", "desempenho", "portal"].includes(m.id)) ||
                                 (p.nome === "Colaborador" && m.id === "portal");
                               return (
-                                <span key={i} className={`text-xs px-1.5 py-0.5 rounded ${hasAccess ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400"}`}>
+                                <span key={i} className={`text-xs px-1.5 py-0.5 rounded ${hasAccess ? "bg-puchoo-green-50 text-puchoo-green-dark" : "bg-puchoo-warm-100 text-puchoo-terracotta-light"}`}>
                                   {p.nome.substring(0, 3)}
                                 </span>
                               );

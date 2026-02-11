@@ -16,17 +16,17 @@ export default function FolhaPagamento() {
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <header className="bg-white shadow-sm border-b border-slate-200">
+    <div className="min-h-screen bg-gradient-to-br from-puchoo-warm-50 to-puchoo-warm-100">
+      <header className="bg-white shadow-sm border-b border-puchoo-green-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4">
           <Link href="/"><Button variant="outline" size="sm"><ArrowLeft className="w-4 h-4 mr-2" />Voltar</Button></Link>
           <div className="flex items-center gap-3">
-            <div className="bg-emerald-500 w-10 h-10 rounded-lg flex items-center justify-center">
+            <div className="bg-puchoo-green w-10 h-10 rounded-lg flex items-center justify-center">
               <DollarSign className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">Folha de Pagamento</h1>
-              <p className="text-sm text-slate-500">Gestão completa de folha, encargos e obrigações</p>
+              <h1 className="text-xl font-bold text-puchoo-green-dark">Folha de Pagamento</h1>
+              <p className="text-sm text-puchoo-terracotta">Gestão completa de folha, encargos e obrigações</p>
             </div>
           </div>
         </div>
@@ -39,10 +39,10 @@ export default function FolhaPagamento() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-500">Total Colaboradores</p>
+                  <p className="text-sm text-puchoo-terracotta">Total Colaboradores</p>
                   <p className="text-2xl font-bold">{resumo.data?.totalColaboradores || 0}</p>
                 </div>
-                <Users className="w-8 h-8 text-blue-500" />
+                <Users className="w-8 h-8 text-puchoo-green" />
               </div>
             </CardContent>
           </Card>
@@ -50,10 +50,10 @@ export default function FolhaPagamento() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-500">Total Bruto</p>
-                  <p className="text-2xl font-bold text-emerald-600">{resumo.data ? fmt(parseFloat(resumo.data.totalBruto?.toString() || "0")) : "..."}</p>
+                  <p className="text-sm text-puchoo-terracotta">Total Bruto</p>
+                  <p className="text-2xl font-bold text-puchoo-green">{resumo.data ? fmt(parseFloat(resumo.data.totalBruto?.toString() || "0")) : "..."}</p>
                 </div>
-                <TrendingUp className="w-8 h-8 text-emerald-500" />
+                <TrendingUp className="w-8 h-8 text-puchoo-green" />
               </div>
             </CardContent>
           </Card>
@@ -61,10 +61,10 @@ export default function FolhaPagamento() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-500">Total Líquido</p>
-                  <p className="text-2xl font-bold text-blue-600">{resumo.data ? fmt(parseFloat(resumo.data.totalLiquido?.toString() || "0")) : "..."}</p>
+                  <p className="text-sm text-puchoo-terracotta">Total Líquido</p>
+                  <p className="text-2xl font-bold text-puchoo-green">{resumo.data ? fmt(parseFloat(resumo.data.totalLiquido?.toString() || "0")) : "..."}</p>
                 </div>
-                <DollarSign className="w-8 h-8 text-blue-500" />
+                <DollarSign className="w-8 h-8 text-puchoo-green" />
               </div>
             </CardContent>
           </Card>
@@ -72,10 +72,10 @@ export default function FolhaPagamento() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-500">Total Descontos</p>
-                  <p className="text-2xl font-bold text-red-600">{resumo.data ? fmt(parseFloat(resumo.data.totalDescontos?.toString() || "0")) : "..."}</p>
+                  <p className="text-sm text-puchoo-terracotta">Total Descontos</p>
+                  <p className="text-2xl font-bold text-puchoo-coral">{resumo.data ? fmt(parseFloat(resumo.data.totalDescontos?.toString() || "0")) : "..."}</p>
                 </div>
-                <Calculator className="w-8 h-8 text-red-500" />
+                <Calculator className="w-8 h-8 text-puchoo-coral" />
               </div>
             </CardContent>
           </Card>
@@ -90,9 +90,9 @@ export default function FolhaPagamento() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {resumo.data?.encargos && Object.entries(resumo.data.encargos).map(([key, val]) => (
-                <div key={key} className="bg-slate-50 rounded-lg p-4 text-center">
-                  <p className="text-xs text-slate-500 uppercase">{key}</p>
-                  <p className="text-lg font-bold text-slate-800">{fmt(parseFloat(val?.toString() || "0"))}</p>
+                <div key={key} className="bg-puchoo-warm-50 rounded-lg p-4 text-center">
+                  <p className="text-xs text-puchoo-terracotta uppercase">{key}</p>
+                  <p className="text-lg font-bold text-puchoo-green-dark">{fmt(parseFloat(val?.toString() || "0"))}</p>
                 </div>
               ))}
             </div>
@@ -109,10 +109,10 @@ export default function FolhaPagamento() {
             <CardContent>
               <div className="space-y-3">
                 {colaboradores.data?.colaboradores.map((c) => (
-                  <div key={c.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                  <div key={c.id} className="flex items-center justify-between p-3 bg-puchoo-warm-50 rounded-lg">
                     <div>
                       <p className="font-medium text-sm">{c.nome || "N/A"}</p>
-                      <p className="text-xs text-slate-500">{c.cargo || "N/A"} - {c.departamento || "N/A"}</p>
+                      <p className="text-xs text-puchoo-terracotta">{c.cargo || "N/A"} - {c.departamento || "N/A"}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-sm">{fmt(parseFloat(c.salarioBase?.toString() || "0"))}</p>
@@ -133,10 +133,10 @@ export default function FolhaPagamento() {
               <CardContent>
                 <div className="space-y-3">
                   {ferias.data?.ferias.map((f) => (
-                    <div key={f.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <div key={f.id} className="flex items-center justify-between p-3 bg-puchoo-warm-50 rounded-lg">
                       <div>
                         <p className="font-medium text-sm">{f.colaboradorId || "N/A"}</p>
-                        <p className="text-xs text-slate-500">{new Date(f.dataInicio).toLocaleDateString?.() || String(f.dataInicio || "")} a {new Date(f.dataFim).toLocaleDateString?.() || String(f.dataFim || "")} ({f.dias} dias)</p>
+                        <p className="text-xs text-puchoo-terracotta">{new Date(f.dataInicio).toLocaleDateString?.() || String(f.dataInicio || "")} a {new Date(f.dataFim).toLocaleDateString?.() || String(f.dataFim || "")} ({f.dias} dias)</p>
                       </div>
                       <Badge variant={f.status === "aprovada" ? "default" : "secondary"}>{f.status || "N/A"}</Badge>
                     </div>
@@ -174,10 +174,10 @@ export default function FolhaPagamento() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
               {relatorios.data?.relatorios.map((r) => (
                 <Button key={r.id} variant="outline" className="justify-start h-auto py-3">
-                  <FileText className="w-4 h-4 mr-2 text-blue-500" />
+                  <FileText className="w-4 h-4 mr-2 text-puchoo-green" />
                   <div className="text-left">
                     <p className="text-sm font-medium">{r.nome || "N/A"}</p>
-                    <p className="text-xs text-slate-500">{r.competencia || "N/A"}</p>
+                    <p className="text-xs text-puchoo-terracotta">{r.competencia || "N/A"}</p>
                   </div>
                 </Button>
               ))}

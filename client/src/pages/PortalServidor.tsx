@@ -81,11 +81,11 @@ const PortalServidor = () => {
   return (
     <div className="p-6 space-y-6">
       {/* Header com dados do servidor */}
-      <Card className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+      <Card className="bg-gradient-to-r from-puchoo-green to-puchoo-green-dark text-white">
         <CardContent className="pt-6">
           <div className="flex items-center gap-6">
             <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center">
-              <User className="w-16 h-16 text-blue-600" />
+              <User className="w-16 h-16 text-puchoo-green" />
             </div>
             <div className="flex-1">
               <h1 className="text-3xl font-bold mb-2">{dadosServidor.nome}</h1>
@@ -118,12 +118,12 @@ const PortalServidor = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Último Salário</p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-sm text-puchoo-terracotta">Último Salário</p>
+                <p className="text-2xl font-bold text-puchoo-green">
                   R$ {contracheques[0].liquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </p>
               </div>
-              <DollarSign className="w-10 h-10 text-green-500" />
+              <DollarSign className="w-10 h-10 text-puchoo-green" />
             </div>
           </CardContent>
         </Card>
@@ -132,10 +132,10 @@ const PortalServidor = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Benefícios Ativos</p>
+                <p className="text-sm text-puchoo-terracotta">Benefícios Ativos</p>
                 <p className="text-2xl font-bold">{beneficios.length}</p>
               </div>
-              <Award className="w-10 h-10 text-blue-500" />
+              <Award className="w-10 h-10 text-puchoo-green" />
             </div>
           </CardContent>
         </Card>
@@ -144,7 +144,7 @@ const PortalServidor = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Dias de Férias</p>
+                <p className="text-sm text-puchoo-terracotta">Dias de Férias</p>
                 <p className="text-2xl font-bold">30</p>
               </div>
               <Calendar className="w-10 h-10 text-purple-500" />
@@ -156,7 +156,7 @@ const PortalServidor = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Documentos</p>
+                <p className="text-sm text-puchoo-terracotta">Documentos</p>
                 <p className="text-2xl font-bold">{documentos.length}</p>
               </div>
               <FileText className="w-10 h-10 text-orange-500" />
@@ -198,22 +198,22 @@ const PortalServidor = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Resumo do contracheque selecionado */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-puchoo-warm-50 rounded-lg">
                 <div>
-                  <p className="text-sm text-gray-500">Salário Bruto</p>
+                  <p className="text-sm text-puchoo-terracotta">Salário Bruto</p>
                   <p className="text-2xl font-bold">
                     R$ {contracheques[0].salarioBruto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Total de Descontos</p>
-                  <p className="text-2xl font-bold text-red-600">
+                  <p className="text-sm text-puchoo-terracotta">Total de Descontos</p>
+                  <p className="text-2xl font-bold text-puchoo-coral">
                     R$ {contracheques[0].descontos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Salário Líquido</p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-sm text-puchoo-terracotta">Salário Líquido</p>
+                  <p className="text-2xl font-bold text-puchoo-green">
                     R$ {contracheques[0].liquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
@@ -223,7 +223,7 @@ const PortalServidor = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Proventos */}
                 <div>
-                  <h3 className="font-bold text-lg mb-4 text-green-700">Proventos</h3>
+                  <h3 className="font-bold text-lg mb-4 text-puchoo-green-dark">Proventos</h3>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -237,24 +237,16 @@ const PortalServidor = () => {
                         <TableRow key={idx}>
                           <TableCell className="font-mono text-sm">{p.codigo}</TableCell>
                           <TableCell>{p.descricao}</TableCell>
-                          <TableCell className="text-right font-semibold text-green-700">
-                            R$ {p.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </TableCell>
+                          <TableCell className="text-right font-medium">R$ {p.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
                         </TableRow>
                       ))}
-                      <TableRow className="bg-green-50">
-                        <TableCell colSpan={2} className="font-bold">Total de Proventos</TableCell>
-                        <TableCell className="text-right font-bold text-green-700">
-                          R$ {detalhesContracheque.proventos.reduce((sum, p) => sum + p.valor, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </TableCell>
-                      </TableRow>
                     </TableBody>
                   </Table>
                 </div>
 
                 {/* Descontos */}
                 <div>
-                  <h3 className="font-bold text-lg mb-4 text-red-700">Descontos</h3>
+                  <h3 className="font-bold text-lg mb-4 text-puchoo-coral">Descontos</h3>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -268,97 +260,50 @@ const PortalServidor = () => {
                         <TableRow key={idx}>
                           <TableCell className="font-mono text-sm">{d.codigo}</TableCell>
                           <TableCell>{d.descricao}</TableCell>
-                          <TableCell className="text-right font-semibold text-red-700">
-                            R$ {d.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </TableCell>
+                          <TableCell className="text-right font-medium">R$ {d.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
                         </TableRow>
                       ))}
-                      <TableRow className="bg-red-50">
-                        <TableCell colSpan={2} className="font-bold">Total de Descontos</TableCell>
-                        <TableCell className="text-right font-bold text-red-700">
-                          R$ {detalhesContracheque.descontos.reduce((sum, d) => sum + d.valor, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </TableCell>
-                      </TableRow>
                     </TableBody>
                   </Table>
                 </div>
               </div>
 
-              {/* Informações adicionais */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-blue-50 rounded-lg">
-                <div>
-                  <p className="text-xs text-gray-600">Base INSS</p>
-                  <p className="font-semibold">R$ {detalhesContracheque.informacoes.baseINSS.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-600">Base IRRF</p>
-                  <p className="font-semibold">R$ {detalhesContracheque.informacoes.baseIRRF.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-600">Base FGTS</p>
-                  <p className="font-semibold">R$ {detalhesContracheque.informacoes.baseFGTS.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-600">FGTS Depositado</p>
-                  <p className="font-semibold">R$ {detalhesContracheque.informacoes.fgts.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+              {/* Informações Adicionais */}
+              <div>
+                <h3 className="font-bold text-lg mb-4">Informações Adicionais</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-puchoo-warm-50 rounded-lg">
+                  <div>
+                    <p className="text-sm text-puchoo-terracotta">Base INSS</p>
+                    <p className="font-semibold">R$ {detalhesContracheque.informacoes.baseINSS.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-puchoo-terracotta">Base IRRF</p>
+                    <p className="font-semibold">R$ {detalhesContracheque.informacoes.baseIRRF.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-puchoo-terracotta">Base FGTS</p>
+                    <p className="font-semibold">R$ {detalhesContracheque.informacoes.baseFGTS.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-puchoo-terracotta">FGTS do Mês</p>
+                    <p className="font-semibold">R$ {detalhesContracheque.informacoes.fgts.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex gap-2">
-                <Button className="flex-1">
-                  <Download className="w-4 h-4 mr-2" />
-                  Baixar PDF
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  <Eye className="w-4 h-4 mr-2" />
-                  Visualizar
-                </Button>
-              </div>
-
-              {/* Histórico */}
-              <div className="border-t pt-6">
-                <h3 className="font-bold text-lg mb-4">Histórico de Contracheques</h3>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Competência</TableHead>
-                      <TableHead>Salário Bruto</TableHead>
-                      <TableHead>Descontos</TableHead>
-                      <TableHead>Líquido</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {contracheques.map((c, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell className="font-medium">{c.competencia}</TableCell>
-                        <TableCell>R$ {c.salarioBruto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
-                        <TableCell className="text-red-600">R$ {c.descontos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
-                        <TableCell className="font-bold text-green-600">R$ {c.liquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
-                        <TableCell>
-                          <Badge variant="default">{c.status}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="outline" size="sm">
-                            <Download className="w-4 h-4 mr-1" />
-                            PDF
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline"><Download className="mr-2 h-4 w-4" /> Baixar PDF</Button>
+                <Button><Eye className="mr-2 h-4 w-4" /> Visualizar</Button>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* ABA: INFORMES */}
-        <TabsContent value="informes" className="space-y-6">
+        {/* ABA: INFORMES DE RENDIMENTOS */}
+        <TabsContent value="informes">
           <Card>
             <CardHeader>
-              <CardTitle>Informes de Rendimentos</CardTitle>
+              <CardTitle>Meus Informes de Rendimentos</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
@@ -368,22 +313,21 @@ const PortalServidor = () => {
                     <TableHead>Tipo</TableHead>
                     <TableHead>Data de Emissão</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Ações</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {informes.map((inf, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell className="font-bold">{inf.ano}</TableCell>
-                      <TableCell>{inf.tipo}</TableCell>
-                      <TableCell>{inf.data}</TableCell>
+                  {informes.map((informe) => (
+                    <TableRow key={informe.ano}>
+                      <TableCell className="font-semibold">{informe.ano}</TableCell>
+                      <TableCell>{informe.tipo}</TableCell>
+                      <TableCell>{new Date(informe.data).toLocaleDateString('pt-BR')}</TableCell>
                       <TableCell>
-                        <Badge variant="default">{inf.status}</Badge>
+                        <Badge variant={informe.status === 'Disponível' ? 'default' : 'secondary'}>{informe.status}</Badge>
                       </TableCell>
-                      <TableCell>
-                        <Button variant="outline" size="sm">
-                          <Download className="w-4 h-4 mr-1" />
-                          Baixar PDF
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="icon">
+                          <Download className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -395,26 +339,24 @@ const PortalServidor = () => {
         </TabsContent>
 
         {/* ABA: BENEFÍCIOS */}
-        <TabsContent value="beneficios" className="space-y-6">
+        <TabsContent value="beneficios">
           <Card>
             <CardHeader>
               <CardTitle>Meus Benefícios</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {beneficios.map((ben, idx) => (
-                  <Card key={idx} className="border-2">
-                    <CardContent className="pt-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="font-bold text-lg">{ben.tipo}</h3>
-                          <p className="text-2xl font-bold text-green-600 mt-2">
-                            R$ {ben.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </p>
-                        </div>
-                        <Badge variant="default">{ben.status}</Badge>
-                      </div>
-                      <p className="text-sm text-gray-600">Vencimento: {ben.vencimento}</p>
+                {beneficios.map((beneficio, idx) => (
+                  <Card key={idx} className="bg-puchoo-green-50 border-puchoo-green-light">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium">{beneficio.tipo}</CardTitle>
+                      <Award className="w-4 h-4 text-puchoo-terracotta" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">R$ {beneficio.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                      <p className="text-xs text-puchoo-terracotta">
+                        Vencimento em {new Date(beneficio.vencimento).toLocaleDateString('pt-BR')}
+                      </p>
                     </CardContent>
                   </Card>
                 ))}
@@ -424,7 +366,7 @@ const PortalServidor = () => {
         </TabsContent>
 
         {/* ABA: FÉRIAS */}
-        <TabsContent value="ferias" className="space-y-6">
+        <TabsContent value="ferias">
           <Card>
             <CardHeader>
               <CardTitle>Histórico de Férias</CardTitle>
@@ -436,21 +378,19 @@ const PortalServidor = () => {
                     <TableHead>Período</TableHead>
                     <TableHead>Dias</TableHead>
                     <TableHead>Tipo</TableHead>
-                    <TableHead>Valor</TableHead>
+                    <TableHead>Valor Bruto</TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {ferias.map((fer, idx) => (
+                  {ferias.map((f, idx) => (
                     <TableRow key={idx}>
-                      <TableCell className="font-medium">{fer.periodo}</TableCell>
-                      <TableCell>{fer.dias}</TableCell>
-                      <TableCell>{fer.tipo}</TableCell>
-                      <TableCell className="font-bold text-green-600">
-                        R$ {fer.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                      </TableCell>
+                      <TableCell className="font-semibold">{f.periodo}</TableCell>
+                      <TableCell>{f.dias}</TableCell>
+                      <TableCell>{f.tipo}</TableCell>
+                      <TableCell>R$ {f.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
                       <TableCell>
-                        <Badge variant="default">{fer.status}</Badge>
+                        <Badge className="bg-puchoo-green text-white">{f.status}</Badge>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -461,40 +401,36 @@ const PortalServidor = () => {
         </TabsContent>
 
         {/* ABA: DOCUMENTOS */}
-        <TabsContent value="documentos" className="space-y-6">
+        <TabsContent value="documentos">
           <Card>
             <CardHeader>
-              <CardTitle>Meus Documentos</CardTitle>
+              <CardTitle>Meus Documentos Digitais</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nome do Documento</TableHead>
+                    <TableHead>Nome do Arquivo</TableHead>
                     <TableHead>Tipo</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Tamanho</TableHead>
-                    <TableHead>Ações</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {documentos.map((doc, idx) => (
                     <TableRow key={idx}>
-                      <TableCell className="font-medium">{doc.nome}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{doc.tipo}</Badge>
-                      </TableCell>
-                      <TableCell>{doc.data}</TableCell>
-                      <TableCell className="text-sm text-gray-600">{doc.tamanho}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Download className="w-4 h-4" />
-                          </Button>
-                        </div>
+                      <TableCell className="font-semibold">{doc.nome}</TableCell>
+                      <TableCell>{doc.tipo}</TableCell>
+                      <TableCell>{new Date(doc.data).toLocaleDateString('pt-BR')}</TableCell>
+                      <TableCell>{doc.tamanho}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="icon">
+                          <Download className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon">
+                          <Eye className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -509,4 +445,3 @@ const PortalServidor = () => {
 };
 
 export default PortalServidor;
-

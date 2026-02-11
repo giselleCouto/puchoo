@@ -90,11 +90,11 @@ const ESocialDashboard = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">eSocial Dashboard</h1>
-          <p className="text-gray-500">Gestão completa de eventos eSocial</p>
+          <h1 className="text-3xl font-bold text-puchoo-green-dark">eSocial Dashboard</h1>
+          <p className="text-puchoo-terracotta">Gestão completa de eventos eSocial</p>
         </div>
         <div className="flex gap-2">
-          <Badge variant="default" className="text-lg px-4 py-2">
+          <Badge variant="default" className="text-lg px-4 py-2 bg-puchoo-green text-white">
             <TrendingUp className="w-4 h-4 mr-2" />
             Conformidade: {estatisticas.conformidade}%
           </Badge>
@@ -111,10 +111,10 @@ const ESocialDashboard = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Eventos Enviados</p>
-                <p className="text-3xl font-bold">{estatisticas.eventosEnviados}</p>
+                <p className="text-sm text-puchoo-terracotta">Eventos Enviados</p>
+                <p className="text-3xl font-bold text-puchoo-green-dark">{estatisticas.eventosEnviados}</p>
               </div>
-              <Send className="w-10 h-10 text-blue-500" />
+              <Send className="w-10 h-10 text-puchoo-green" />
             </div>
           </CardContent>
         </Card>
@@ -123,10 +123,10 @@ const ESocialDashboard = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Aguardando</p>
-                <p className="text-3xl font-bold text-orange-600">{estatisticas.aguardandoProcessamento}</p>
+                <p className="text-sm text-puchoo-terracotta">Aguardando</p>
+                <p className="text-3xl font-bold text-puchoo-coral">{estatisticas.aguardandoProcessamento}</p>
               </div>
-              <Clock className="w-10 h-10 text-orange-500" />
+              <Clock className="w-10 h-10 text-puchoo-coral" />
             </div>
           </CardContent>
         </Card>
@@ -135,10 +135,10 @@ const ESocialDashboard = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Com Sucesso</p>
-                <p className="text-3xl font-bold text-green-600">{estatisticas.processadosComSucesso}</p>
+                <p className="text-sm text-puchoo-terracotta">Com Sucesso</p>
+                <p className="text-3xl font-bold text-puchoo-green">{estatisticas.processadosComSucesso}</p>
               </div>
-              <CheckCircle className="w-10 h-10 text-green-500" />
+              <CheckCircle className="w-10 h-10 text-puchoo-green" />
             </div>
           </CardContent>
         </Card>
@@ -147,10 +147,10 @@ const ESocialDashboard = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Com Erros</p>
-                <p className="text-3xl font-bold text-red-600">{estatisticas.comErros}</p>
+                <p className="text-sm text-puchoo-terracotta">Com Erros</p>
+                <p className="text-3xl font-bold text-puchoo-coral">{estatisticas.comErros}</p>
               </div>
-              <XCircle className="w-10 h-10 text-red-500" />
+              <XCircle className="w-10 h-10 text-puchoo-coral" />
             </div>
           </CardContent>
         </Card>
@@ -159,10 +159,10 @@ const ESocialDashboard = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500">Conformidade</p>
-                <p className="text-3xl font-bold text-green-600">{estatisticas.conformidade}%</p>
+                <p className="text-sm text-puchoo-terracotta">Conformidade</p>
+                <p className="text-3xl font-bold text-puchoo-green">{estatisticas.conformidade}%</p>
               </div>
-              <TrendingUp className="w-10 h-10 text-green-500" />
+              <TrendingUp className="w-10 h-10 text-puchoo-green" />
             </div>
           </CardContent>
         </Card>
@@ -171,31 +171,31 @@ const ESocialDashboard = () => {
       {/* Eventos por Categoria */}
       <Card>
         <CardHeader>
-          <CardTitle>Eventos por Categoria</CardTitle>
+          <CardTitle className="text-puchoo-green-dark">Eventos por Categoria</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {eventosPorCategoria.map((cat, idx) => (
-              <Card key={idx} className="border-2">
+              <Card key={idx} className="border-2 border-puchoo-warm-100">
                 <CardContent className="pt-6">
-                  <h3 className="font-bold text-lg mb-4">{cat.categoria}</h3>
+                  <h3 className="font-bold text-lg mb-4 text-puchoo-green-dark">{cat.categoria}</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Total:</span>
-                      <span className="font-bold">{cat.total}</span>
+                      <span className="text-sm text-puchoo-terracotta">Total:</span>
+                      <span className="font-bold text-puchoo-green-dark">{cat.total}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Sucesso:</span>
-                      <span className="font-bold text-green-600">{cat.sucesso}</span>
+                      <span className="text-sm text-puchoo-terracotta">Sucesso:</span>
+                      <span className="font-bold text-puchoo-green">{cat.sucesso}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Erros:</span>
-                      <span className="font-bold text-red-600">{cat.erros}</span>
+                      <span className="text-sm text-puchoo-terracotta">Erros:</span>
+                      <span className="font-bold text-puchoo-coral">{cat.erros}</span>
                     </div>
                   </div>
-                  <div className="mt-4 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="mt-4 h-2 bg-puchoo-warm-100 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-green-500" 
+                      className="h-full bg-puchoo-green" 
                       style={{ width: `${(cat.sucesso / cat.total) * 100}%` }}
                     />
                   </div>
@@ -220,7 +220,7 @@ const ESocialDashboard = () => {
           <Card>
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle>Últimos Eventos Enviados</CardTitle>
+                <CardTitle className="text-puchoo-green-dark">Últimos Eventos Enviados</CardTitle>
                 <Button variant="outline" size="sm">
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Atualizar
@@ -230,36 +230,31 @@ const ESocialDashboard = () => {
             <CardContent>
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead>Data/Hora</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Protocolo</TableHead>
-                    <TableHead>Ações</TableHead>
+                  <TableRow className="border-puchoo-warm-100">
+                    <TableHead className="text-puchoo-green-dark">Tipo</TableHead>
+                    <TableHead className="text-puchoo-green-dark">Descrição</TableHead>
+                    <TableHead className="text-puchoo-green-dark">Data/Hora</TableHead>
+                    <TableHead className="text-puchoo-green-dark">Status</TableHead>
+                    <TableHead className="text-puchoo-green-dark">Protocolo</TableHead>
+                    <TableHead className="text-puchoo-green-dark">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {eventosRecentes.map((evento) => (
-                    <TableRow key={evento.id}>
-                      <TableCell className="font-mono font-bold">{evento.tipo}</TableCell>
-                      <TableCell>{evento.descricao}</TableCell>
-                      <TableCell className="text-sm">{evento.data}</TableCell>
+                    <TableRow key={evento.id} className="border-puchoo-warm-100">
+                      <TableCell className="font-mono font-bold text-puchoo-terracotta">{evento.tipo}</TableCell>
+                      <TableCell className="text-puchoo-terracotta">{evento.descricao}</TableCell>
+                      <TableCell className="text-puchoo-terracotta-light">{evento.data}</TableCell>
                       <TableCell>
-                        <Badge variant={evento.status === 'Processado' ? 'default' : 'destructive'}>
+                        <Badge className={`${evento.status === 'Processado' ? 'bg-puchoo-green-50 text-puchoo-green-dark' : 'bg-puchoo-coral-light/30 text-puchoo-coral'}`}>
                           {evento.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="font-mono text-sm">{evento.protocolo}</TableCell>
+                      <TableCell className="font-mono text-puchoo-terracotta-light">{evento.protocolo}</TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Download className="w-4 h-4" />
-                          </Button>
-                        </div>
+                        <Button variant="ghost" size="sm" className="hover:bg-puchoo-warm-50">
+                          <Eye className="w-4 h-4 text-puchoo-green" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -273,40 +268,33 @@ const ESocialDashboard = () => {
         <TabsContent value="pendentes" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Eventos Aguardando Envio</CardTitle>
+              <CardTitle className="text-puchoo-green-dark">Eventos Pendentes de Envio</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead>Funcionários</TableHead>
-                    <TableHead>Prioridade</TableHead>
-                    <TableHead>Ações</TableHead>
+                  <TableRow className="border-puchoo-warm-100">
+                    <TableHead className="text-puchoo-green-dark">Tipo</TableHead>
+                    <TableHead className="text-puchoo-green-dark">Descrição</TableHead>
+                    <TableHead className="text-puchoo-green-dark">Funcionários</TableHead>
+                    <TableHead className="text-puchoo-green-dark">Prioridade</TableHead>
+                    <TableHead className="text-puchoo-green-dark">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {eventosPendentes.map((evento) => (
-                    <TableRow key={evento.id}>
-                      <TableCell className="font-mono font-bold">{evento.tipo}</TableCell>
-                      <TableCell>{evento.descricao}</TableCell>
-                      <TableCell className="text-center">{evento.funcionarios}</TableCell>
+                    <TableRow key={evento.id} className="border-puchoo-warm-100">
+                      <TableCell className="font-mono font-bold text-puchoo-terracotta">{evento.tipo}</TableCell>
+                      <TableCell className="text-puchoo-terracotta">{evento.descricao}</TableCell>
+                      <TableCell className="text-puchoo-terracotta">{evento.funcionarios}</TableCell>
                       <TableCell>
-                        <Badge variant={
-                          evento.prioridade === 'Alta' ? 'destructive' :
-                          evento.prioridade === 'Média' ? 'secondary' : 'default'
-                        }>
+                        <Badge className={`${evento.prioridade === 'Alta' ? 'bg-puchoo-coral-light/30 text-puchoo-coral' : 'bg-amber-50 text-amber-500'}`}>
                           {evento.prioridade}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Button 
-                          onClick={() => enviarEvento(evento.tipo)}
-                          size="sm"
-                          disabled={processando}
-                        >
-                          <Send className="w-4 h-4 mr-1" />
+                        <Button size="sm" className="bg-puchoo-green hover:bg-puchoo-green-dark">
+                          <Send className="w-4 h-4 mr-2" />
                           Enviar
                         </Button>
                       </TableCell>
@@ -318,43 +306,35 @@ const ESocialDashboard = () => {
           </Card>
         </TabsContent>
 
-        {/* ABA: EVENTOS COM ERRO */}
+        {/* ABA: ERROS */}
         <TabsContent value="erros" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Eventos com Erro</CardTitle>
+              <CardTitle className="text-puchoo-green-dark">Eventos com Erros</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Funcionário</TableHead>
-                    <TableHead>Erro</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Tentativas</TableHead>
-                    <TableHead>Ações</TableHead>
+                  <TableRow className="border-puchoo-warm-100">
+                    <TableHead className="text-puchoo-green-dark">Tipo</TableHead>
+                    <TableHead className="text-puchoo-green-dark">Funcionário</TableHead>
+                    <TableHead className="text-puchoo-green-dark">Erro</TableHead>
+                    <TableHead className="text-puchoo-green-dark">Data/Hora</TableHead>
+                    <TableHead className="text-puchoo-green-dark">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {eventosComErro.map((evento) => (
-                    <TableRow key={evento.id}>
-                      <TableCell className="font-mono font-bold">{evento.tipo}</TableCell>
-                      <TableCell>{evento.funcionario}</TableCell>
-                      <TableCell className="text-red-600">{evento.erro}</TableCell>
-                      <TableCell className="text-sm">{evento.data}</TableCell>
-                      <TableCell className="text-center">{evento.tentativas}</TableCell>
+                    <TableRow key={evento.id} className="bg-puchoo-coral-light/20 border-puchoo-coral-light">
+                      <TableCell className="font-mono font-bold text-puchoo-coral">{evento.tipo}</TableCell>
+                      <TableCell className="text-puchoo-coral">{evento.funcionario}</TableCell>
+                      <TableCell className="text-puchoo-coral">{evento.erro}</TableCell>
+                      <TableCell className="text-puchoo-coral">{evento.data}</TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            <Eye className="w-4 h-4 mr-1" />
-                            Ver
-                          </Button>
-                          <Button size="sm">
-                            <RefreshCw className="w-4 h-4 mr-1" />
-                            Reenviar
-                          </Button>
-                        </div>
+                        <Button size="sm" variant="destructive" className="bg-puchoo-coral hover:bg-puchoo-coral-dark">
+                          <RefreshCw className="w-4 h-4 mr-2" />
+                          Reprocessar
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -366,132 +346,59 @@ const ESocialDashboard = () => {
 
         {/* ABA: ENVIAR EVENTOS */}
         <TabsContent value="enviar" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Enviar Novos Eventos</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="bg-amber-50 p-4 rounded-lg flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-amber-900">Atenção</p>
-                  <p className="text-sm text-amber-800">
-                    Certifique-se de que todos os dados estão corretos antes de enviar eventos ao eSocial.
-                    Eventos enviados não podem ser excluídos, apenas retificados.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <Button variant="outline" className="h-20 flex-col">
-                  <FileText className="w-6 h-6 mb-2" />
-                  <span className="text-sm">S-1200</span>
-                  <span className="text-xs text-gray-500">Remuneração</span>
-                </Button>
-                <Button variant="outline" className="h-20 flex-col">
-                  <FileText className="w-6 h-6 mb-2" />
-                  <span className="text-sm">S-1299</span>
-                  <span className="text-xs text-gray-500">Fechamento</span>
-                </Button>
-                <Button variant="outline" className="h-20 flex-col">
-                  <FileText className="w-6 h-6 mb-2" />
-                  <span className="text-sm">S-2200</span>
-                  <span className="text-xs text-gray-500">Admissão</span>
-                </Button>
-                <Button variant="outline" className="h-20 flex-col">
-                  <FileText className="w-6 h-6 mb-2" />
-                  <span className="text-sm">S-2299</span>
-                  <span className="text-xs text-gray-500">Desligamento</span>
-                </Button>
-                <Button variant="outline" className="h-20 flex-col">
-                  <FileText className="w-6 h-6 mb-2" />
-                  <span className="text-sm">S-2210</span>
-                  <span className="text-xs text-gray-500">CAT</span>
-                </Button>
-                <Button variant="outline" className="h-20 flex-col">
-                  <FileText className="w-6 h-6 mb-2" />
-                  <span className="text-sm">S-2220</span>
-                  <span className="text-xs text-gray-500">ASO</span>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* ABA: TIPOS DE EVENTOS */}
-        <TabsContent value="tipos" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Eventos de Tabelas</CardTitle>
+                <CardTitle className="text-puchoo-green-dark">Envio Rápido</CardTitle>
               </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableBody>
-                    {tiposEventos.tabelas.map((evento, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell className="font-mono font-bold">{evento.codigo}</TableCell>
-                        <TableCell>{evento.nome}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <CardContent className="space-y-4">
+                <Button className="w-full justify-start bg-puchoo-green-50 text-puchoo-green-dark hover:bg-puchoo-green-100" onClick={() => enviarEvento('S-2200')} disabled={processando}>
+                  <FileText className="w-4 h-4 mr-2" /> Cadastrar Novo Vínculo (S-2200)
+                </Button>
+                <Button className="w-full justify-start bg-puchoo-green-50 text-puchoo-green-dark hover:bg-puchoo-green-100" onClick={() => enviarEvento('S-2299')} disabled={processando}>
+                  <FileText className="w-4 h-4 mr-2" /> Enviar Desligamento (S-2299)
+                </Button>
+                <Button className="w-full justify-start bg-puchoo-green-50 text-puchoo-green-dark hover:bg-puchoo-green-100" onClick={() => enviarEvento('S-1200')} disabled={processando}>
+                  <FileText className="w-4 h-4 mr-2" /> Enviar Remuneração (S-1200)
+                </Button>
               </CardContent>
             </Card>
-
             <Card>
               <CardHeader>
-                <CardTitle>Eventos Não Periódicos</CardTitle>
+                <CardTitle className="text-puchoo-green-dark">Envio em Lote</CardTitle>
               </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableBody>
-                    {tiposEventos.naoPeriodicos.map((evento, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell className="font-mono font-bold">{evento.codigo}</TableCell>
-                        <TableCell>{evento.nome}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <CardContent className="flex flex-col items-center justify-center h-full bg-puchoo-warm-50 border-2 border-dashed border-puchoo-green-light rounded-lg p-8 text-center">
+                <Upload className="w-12 h-12 text-puchoo-terracotta-light mb-4" />
+                <h3 className="text-lg font-semibold text-puchoo-green-dark">Arraste e solte seu arquivo XML</h3>
+                <p className="text-puchoo-terracotta">ou</p>
+                <Button variant="outline">Selecione o arquivo</Button>
               </CardContent>
             </Card>
+          </div>
+        </TabsContent>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Eventos Periódicos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableBody>
-                    {tiposEventos.periodicos.map((evento, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell className="font-mono font-bold">{evento.codigo}</TableCell>
-                        <TableCell>{evento.nome}</TableCell>
-                      </TableRow>
+        {/* ABA: TIPOS DE EVENTOS */}
+        <TabsContent value="tipos">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {Object.entries(tiposEventos).map(([key, value]) => (
+              <Card key={key}>
+                <CardHeader className="bg-puchoo-green-50 rounded-t-lg">
+                  <CardTitle className="text-puchoo-green-dark capitalize">{key.replace(/([A-Z])/g, ' $1')}</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <ul className="space-y-2">
+                    {value.map(evento => (
+                      <li key={evento.codigo} className="text-sm text-puchoo-terracotta flex justify-between items-center">
+                        <span>{evento.codigo} - {evento.nome}</span>
+                        <Button variant="ghost" size="sm" className="hover:bg-puchoo-warm-50">
+                          <Send className="w-4 h-4 text-puchoo-green" />
+                        </Button>
+                      </li>
                     ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Eventos SST</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableBody>
-                    {tiposEventos.sst.map((evento, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell className="font-mono font-bold">{evento.codigo}</TableCell>
-                        <TableCell>{evento.nome}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+                  </ul>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </TabsContent>
       </Tabs>
@@ -500,4 +407,3 @@ const ESocialDashboard = () => {
 };
 
 export default ESocialDashboard;
-
