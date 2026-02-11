@@ -61,4 +61,8 @@
 - [x] Remover menções de arquivos frontend (Home.tsx, Auditoria.tsx)
 - [x] Remover menções de documentação (todo.md, screenshot_notes.md)
 - [x] Verificar build e testes
-- [ ] Push para GitHub
+- [x] Push para GitHub
+
+## Remoção de Números de Seção dos Cards
+- [x] Remover números de seção das descrições dos módulos no Home.tsx e AdminPermissoes.tsx
+- [x] Verificar build e push para GitHub

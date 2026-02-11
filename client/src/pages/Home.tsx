@@ -13,46 +13,46 @@ const moduleCategories = [
   {
     category: "Gestão de Pessoal",
     modules: [
-      { id: "folha", title: "Folha de Pagamento", description: "Processamento completo de folha, encargos, férias, rescisões e obrigações acessórias (3.1)", icon: DollarSign, path: "/folha", color: "bg-emerald-500" },
-      { id: "esocial", title: "eSocial", description: "Documentos eletrônicos, eventos S-1000 a S-2299, DCTFWeb e conformidade (3.2)", icon: FileText, path: "/esocial", color: "bg-red-500" },
-      { id: "ponto", title: "Controle de Ponto", description: "Portaria 671, reconhecimento facial, geolocalização, banco de horas e escalas (3.3)", icon: Clock, path: "/ponto", color: "bg-blue-500" },
-      { id: "beneficios", title: "Gestão de Benefícios", description: "VT, VA, VR, planos de saúde, consignados e controle de margem (3.4)", icon: Gift, path: "/beneficios", color: "bg-purple-500" },
+      { id: "folha", title: "Folha de Pagamento", description: "Processamento completo de folha, encargos, férias, rescisões e obrigações acessórias", icon: DollarSign, path: "/folha", color: "bg-emerald-500" },
+      { id: "esocial", title: "eSocial", description: "Documentos eletrônicos, eventos S-1000 a S-2299, DCTFWeb e conformidade", icon: FileText, path: "/esocial", color: "bg-red-500" },
+      { id: "ponto", title: "Controle de Ponto", description: "Portaria 671, reconhecimento facial, geolocalização, banco de horas e escalas", icon: Clock, path: "/ponto", color: "bg-blue-500" },
+      { id: "beneficios", title: "Gestão de Benefícios", description: "VT, VA, VR, planos de saúde, consignados e controle de margem", icon: Gift, path: "/beneficios", color: "bg-purple-500" },
     ],
   },
   {
     category: "Saúde e Segurança",
     modules: [
-      { id: "sst", title: "SST/SESMT", description: "PGR, PCMSO, LTCAT, PPP, CIPA, EPIs, NRs e gestão de riscos (3.5)", icon: Shield, path: "/sst", color: "bg-green-500" },
-      { id: "medicina", title: "Medicina Ocupacional", description: "Prontuários, afastamentos, gestantes, exames ocupacionais e CID (3.6)", icon: Stethoscope, path: "/medicina", color: "bg-rose-500" },
+      { id: "sst", title: "SST/SESMT", description: "PGR, PCMSO, LTCAT, PPP, CIPA, EPIs, NRs e gestão de riscos", icon: Shield, path: "/sst", color: "bg-green-500" },
+      { id: "medicina", title: "Medicina Ocupacional", description: "Prontuários, afastamentos, gestantes, exames ocupacionais e CID", icon: Stethoscope, path: "/medicina", color: "bg-rose-500" },
     ],
   },
   {
     category: "Desenvolvimento e Seleção",
     modules: [
-      { id: "desempenho", title: "Gestão de Desempenho", description: "Avaliações 90°/180°/360°, OKRs, PDI, 9-Box e feedback contínuo (3.7)", icon: Target, path: "/desempenho", color: "bg-amber-500" },
-      { id: "quadro", title: "Quadro de Vagas", description: "Planejamento de vagas por departamento, orçamento e lotação (3.12)", icon: LayoutGrid, path: "/quadro-vagas", color: "bg-teal-500" },
-      { id: "recrutamento", title: "Recrutamento e Seleção", description: "Vagas, candidatos, triagem IA, pipeline e contratação (3.13)", icon: UserSearch, path: "/recrutamento", color: "bg-indigo-500" },
+      { id: "desempenho", title: "Gestão de Desempenho", description: "Avaliações 90°/180°/360°, OKRs, PDI, 9-Box e feedback contínuo", icon: Target, path: "/desempenho", color: "bg-amber-500" },
+      { id: "quadro", title: "Quadro de Vagas", description: "Planejamento de vagas por departamento, orçamento e lotação", icon: LayoutGrid, path: "/quadro-vagas", color: "bg-teal-500" },
+      { id: "recrutamento", title: "Recrutamento e Seleção", description: "Vagas, candidatos, triagem IA, pipeline e contratação", icon: UserSearch, path: "/recrutamento", color: "bg-indigo-500" },
     ],
   },
   {
     category: "Portal e Acesso",
     modules: [
-      { id: "portal", title: "Portal do Colaborador", description: "Contracheques, férias, documentos, treinamentos e comunicados (3.9)", icon: Users, path: "/portal-servidor", color: "bg-violet-500" },
-      { id: "acesso", title: "Controle de Acesso", description: "Catracas faciais, visitantes, portaria e log de acessos (3.11)", icon: ShieldCheck, path: "/acesso", color: "bg-slate-700" },
+      { id: "portal", title: "Portal do Colaborador", description: "Contracheques, férias, documentos, treinamentos e comunicados", icon: Users, path: "/portal-servidor", color: "bg-violet-500" },
+      { id: "acesso", title: "Controle de Acesso", description: "Catracas faciais, visitantes, portaria e log de acessos", icon: ShieldCheck, path: "/acesso", color: "bg-slate-700" },
     ],
   },
   {
     category: "Financeiro e Integrações",
     modules: [
-      { id: "bancaria", title: "Integração Bancária", description: "Pagamentos em lote via Pix, TED, CNAB e conciliação (3.1.4)", icon: Banknote, path: "/integracao-bancaria", color: "bg-amber-600" },
+      { id: "bancaria", title: "Integração Bancária", description: "Pagamentos em lote via Pix, TED, CNAB e conciliação", icon: Banknote, path: "/integracao-bancaria", color: "bg-amber-600" },
     ],
   },
   {
     category: "Conformidade e Suporte",
     modules: [
-      { id: "lgpd", title: "LGPD", description: "Consentimentos, solicitações de titulares, DPIA e trilha de auditoria (3.15.1)", icon: Lock, path: "/lgpd", color: "bg-sky-600" },
-      { id: "auditoria", title: "Trilha de Auditoria", description: "Registro de inclusão, alteração, exclusão e consulta por módulo (3.15.2)", icon: ScrollText, path: "/auditoria", color: "bg-gray-700" },
-      { id: "suporte", title: "Suporte ao Cliente", description: "Chamados, SLA, FAQ e base de conhecimento (3.14)", icon: Headphones, path: "/suporte", color: "bg-cyan-500" },
+      { id: "lgpd", title: "LGPD", description: "Consentimentos, solicitações de titulares, DPIA e trilha de auditoria", icon: Lock, path: "/lgpd", color: "bg-sky-600" },
+      { id: "auditoria", title: "Trilha de Auditoria", description: "Registro de inclusão, alteração, exclusão e consulta por módulo", icon: ScrollText, path: "/auditoria", color: "bg-gray-700" },
+      { id: "suporte", title: "Suporte ao Cliente", description: "Chamados, SLA, FAQ e base de conhecimento", icon: Headphones, path: "/suporte", color: "bg-cyan-500" },
     ],
   },
 ];

@@ -85,7 +85,7 @@ export default function AdminPermissoes() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-900">Painel Administrativo</h1>
-              <p className="text-sm text-slate-500">Controle de permissões e perfis de acesso (3.15)</p>
+              <p className="text-sm text-slate-500">Controle de permissões e perfis de acesso</p>
             </div>
           </div>
         </div>
