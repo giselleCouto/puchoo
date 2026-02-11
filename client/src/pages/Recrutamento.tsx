@@ -9,7 +9,17 @@ export default function Recrutamento() {
   const dashboard = trpc.recrutamento.getDashboard.useQuery();
   const vagas = trpc.recrutamento.getVagas.useQuery();
 
-  const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const fmt = (v: number | string | null | undefined) => {
+    const num = parseFloat(v?.toString() || "0");
+    return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  }
+
+  const formatDate = (date: Date | string | null | undefined) => {
+    if (!date) return "N/A";
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return String(date);
+    return d.toLocaleDateString?.() || String(date);
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -70,7 +80,7 @@ export default function Recrutamento() {
             <CardContent className="pt-6 text-center">
               <TrendingUp className="w-6 h-6 mx-auto text-teal-500 mb-1" />
               <p className="text-xs text-slate-500">Taxa Conversão</p>
-              <p className="text-2xl font-bold text-teal-600">{dashboard.data?.taxaConversao || 0}%</p>
+              <p className="text-2xl font-bold text-teal-600">{parseFloat(dashboard.data?.taxaConversao?.toString() || "0").toFixed(1)}%</p>
             </CardContent>
           </Card>
         </div>
@@ -83,34 +93,40 @@ export default function Recrutamento() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {vagas.data?.vagas.map((v) => (
+              {vagas.data?.vagas.map((v: any) => (
                 <div key={v.id} className="p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h3 className="font-semibold text-lg">{v.titulo}</h3>
-                      <p className="text-sm text-slate-500">{v.departamento} | Faixa: {fmt(v.salarioMin)} - {fmt(v.salarioMax)}</p>
+                      <h3 className="font-semibold text-lg">{v.titulo || "N/A"}</h3>
+                      <p className="text-sm text-slate-500">{v.departamento || "N/A"} | Faixa: {fmt(v.salarioMin)} - {fmt(v.salarioMax)}</p>
                     </div>
                     <Badge variant={v.status === "aberta" ? "default" : v.status === "em_selecao" ? "secondary" : "outline"}>
-                      {v.status === "aberta" ? "Aberta" : v.status === "em_selecao" ? "Em Seleção" : v.status}
+                      {v.status === "aberta" ? "Aberta" : v.status === "em_selecao" ? "Em Seleção" : (v.status || "N/A")}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4 text-slate-400" />
-                      <span className="text-sm">{v.candidatos} candidatos</span>
+                      <span className="text-sm">{v.candidatos || 0} candidatos</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-slate-400" />
-                      <span className="text-sm">Aberta em {v.dataAbertura}</span>
+                      <span className="text-sm">Aberta em {formatDate(v.dataAbertura)}</span>
                     </div>
                   </div>
 
                   {/* Pipeline visual */}
                   <div className="mt-3 flex gap-1">
-                    {["Triagem", "Teste", "Entrevista", "Proposta", "Contratado"].map((etapa, i) => (
+                    {[
+                      { label: "Triagem", count: v.etapaTriagem || 0 },
+                      { label: "Teste", count: v.etapaTeste || 0 },
+                      { label: "Entrevista", count: v.etapaEntrevista || 0 },
+                      { label: "Proposta", count: v.etapaProposta || 0 },
+                      { label: "Contratado", count: v.etapaContratado || 0 },
+                    ].map((etapa, i) => (
                       <div key={i} className="flex-1">
-                        <div className={`h-2 rounded-full ${i <= 2 ? "bg-indigo-400" : "bg-slate-200"}`} />
-                        <p className="text-xs text-center text-slate-500 mt-1">{etapa}</p>
+                        <div className={`h-2 rounded-full ${etapa.count > 0 ? "bg-indigo-400" : "bg-slate-200"}`} />
+                        <p className="text-xs text-center text-slate-500 mt-1">{etapa.label} ({etapa.count})</p>
                       </div>
                     ))}
                   </div>

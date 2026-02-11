@@ -3,8 +3,9 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
+import * as db from "./db";
+import { gerarContracheque, gerarEspelhoPonto, gerarRelatorioSST, gerarRelatorioFolhaExcel, gerarRelatorioPontoExcel } from "./relatorios";
 
-// Helper para gerar IDs únicos
 const genId = () => `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
 export const appRouter = router({
@@ -25,60 +26,118 @@ export const appRouter = router({
   folha: router({
     getColaboradores: protectedProcedure
       .input(z.object({ departamento: z.string().optional(), status: z.string().optional() }).optional())
-      .query(async ({ input }) => {
-        return {
-          colaboradores: [
-            { id: "1", nome: "João Silva", cpf: "123.456.789-00", cargo: "Analista de RH", departamento: "RH", salarioBase: 5500.00, status: "ativo", dataAdmissao: "2020-03-15", tipoContrato: "clt" },
-            { id: "2", nome: "Maria Santos", cpf: "987.654.321-00", cargo: "Engenheira de Segurança", departamento: "SST", salarioBase: 8200.00, status: "ativo", dataAdmissao: "2019-06-01", tipoContrato: "clt" },
-            { id: "3", nome: "Pedro Costa", cpf: "456.789.123-00", cargo: "Técnico Administrativo", departamento: "Administrativo", salarioBase: 3800.00, status: "ativo", dataAdmissao: "2021-01-10", tipoContrato: "clt" },
-            { id: "4", nome: "Ana Oliveira", cpf: "321.654.987-00", cargo: "Coordenadora de DP", departamento: "DP", salarioBase: 7500.00, status: "ativo", dataAdmissao: "2018-09-20", tipoContrato: "clt" },
-            { id: "5", nome: "Carlos Ferreira", cpf: "654.321.987-00", cargo: "Estagiário", departamento: "TI", salarioBase: 1800.00, status: "ativo", dataAdmissao: "2024-02-01", tipoContrato: "estagiario" },
-          ],
-          total: 5,
-        };
+      .query(async ({ input, ctx }) => {
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "consulta", modulo: "Folha", descricao: "Consulta lista de colaboradores",
+        });
+        return db.getColaboradores(input || undefined);
+      }),
+
+    criarColaborador: protectedProcedure
+      .input(z.object({
+        nome: z.string(), cpf: z.string(), cargo: z.string().optional(),
+        departamento: z.string().optional(), salarioBase: z.string().optional(),
+        dataAdmissao: z.string(), tipoContrato: z.string().optional(),
+        email: z.string().optional(), rg: z.string().optional(),
+        ctps: z.string().optional(), pis: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const id = genId();
+        await db.criarColaborador({
+          id, nome: input.nome, cpf: input.cpf, cargo: input.cargo || null,
+          departamento: input.departamento || null, salarioBase: input.salarioBase || null,
+          dataAdmissao: new Date(input.dataAdmissao), tipoContrato: (input.tipoContrato as any) || "clt",
+          status: "ativo",
+        });
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "inclusao", modulo: "Folha",
+          descricao: `Cadastro de colaborador: ${input.nome}`,
+          dadosNovos: input,
+        });
+        return { success: true, mensagem: `Colaborador ${input.nome} cadastrado com sucesso`, id };
       }),
 
     processarFolha: protectedProcedure
       .input(z.object({ competencia: z.string(), tipo: z.string().optional() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        const { colaboradores: colabs, total } = await db.getColaboradores({ status: "ativo" });
+        let totalBruto = 0, totalINSS = 0, totalIRRF = 0, totalFGTS = 0, totalLiquido = 0;
+
+        for (const colab of colabs) {
+          const salario = parseFloat(colab.salarioBase?.toString() || "0");
+          const inss = Math.min(salario * 0.14, 908.86);
+          const baseIRRF = salario - inss;
+          let irrf = 0;
+          if (baseIRRF > 4664.68) irrf = baseIRRF * 0.275 - 896.00;
+          else if (baseIRRF > 3751.06) irrf = baseIRRF * 0.225 - 662.77;
+          else if (baseIRRF > 2826.66) irrf = baseIRRF * 0.15 - 381.44;
+          else if (baseIRRF > 2259.21) irrf = baseIRRF * 0.075 - 169.44;
+          if (irrf < 0) irrf = 0;
+          const fgts = salario * 0.08;
+          const liquido = salario - inss - irrf;
+
+          const folhaId = genId();
+          await db.criarFolhaPagamento({
+            id: folhaId, colaboradorId: colab.id, competencia: input.competencia,
+            tipo: (input.tipo as any) || "mensal",
+            salarioBruto: salario.toFixed(2), inss: inss.toFixed(2),
+            irrf: irrf.toFixed(2), fgts: fgts.toFixed(2),
+            salarioLiquido: liquido.toFixed(2), status: "processada",
+          });
+
+          totalBruto += salario; totalINSS += inss; totalIRRF += irrf;
+          totalFGTS += fgts; totalLiquido += liquido;
+        }
+
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "inclusao", modulo: "Folha",
+          descricao: `Processamento da folha ${input.competencia} para ${total} colaboradores`,
+        });
+
         return {
           success: true,
           mensagem: `Folha de pagamento ${input.competencia} processada com sucesso`,
           resumo: {
-            competencia: input.competencia,
-            totalColaboradores: 247,
-            totalBruto: 1850000.00,
-            totalINSS: 203500.00,
-            totalIRRF: 148000.00,
-            totalFGTS: 148000.00,
-            totalDescontos: 499500.00,
-            totalLiquido: 1350500.00,
-            status: "processada",
+            competencia: input.competencia, totalColaboradores: total,
+            totalBruto, totalINSS, totalIRRF, totalFGTS,
+            totalDescontos: totalINSS + totalIRRF,
+            totalLiquido, status: "processada",
           },
         };
       }),
 
     getResumoFolha: protectedProcedure
       .input(z.object({ competencia: z.string().optional() }).optional())
-      .query(async () => {
+      .query(async ({ input }) => {
+        const competencia = input?.competencia || new Date().toISOString().substring(0, 7);
+        const resumo = await db.getResumoFolha(competencia);
+        if (!resumo || !resumo.totalColaboradores) {
+          return {
+            competencia, totalColaboradores: 0, totalBruto: 0, totalINSS: 0,
+            totalIRRF: 0, totalFGTS: 0, totalDescontos: 0, totalLiquido: 0,
+            provisaoFerias: 0, provisao13: 0, status: "sem_dados",
+            encargos: { inss: 0, fgts: 0, irrf: 0, pis: 0, cofins: 0 },
+          };
+        }
+        const bruto = parseFloat(resumo.totalBruto?.toString() || "0");
         return {
-          competencia: "2025-01",
-          totalColaboradores: 247,
-          totalBruto: 1850000.00,
-          totalINSS: 203500.00,
-          totalIRRF: 148000.00,
-          totalFGTS: 148000.00,
-          totalDescontos: 499500.00,
-          totalLiquido: 1350500.00,
-          provisaoFerias: 154166.67,
-          provisao13: 154166.67,
+          competencia, totalColaboradores: resumo.totalColaboradores,
+          totalBruto: bruto,
+          totalINSS: parseFloat(resumo.totalINSS?.toString() || "0"),
+          totalIRRF: parseFloat(resumo.totalIRRF?.toString() || "0"),
+          totalFGTS: parseFloat(resumo.totalFGTS?.toString() || "0"),
+          totalDescontos: parseFloat(resumo.totalDescontos?.toString() || "0"),
+          totalLiquido: parseFloat(resumo.totalLiquido?.toString() || "0"),
+          provisaoFerias: bruto / 12, provisao13: bruto / 12,
           status: "processada",
           encargos: {
-            inss: 203500.00,
-            fgts: 148000.00,
-            irrf: 148000.00,
-            pis: 9250.00,
-            cofins: 0,
+            inss: parseFloat(resumo.totalINSS?.toString() || "0"),
+            fgts: parseFloat(resumo.totalFGTS?.toString() || "0"),
+            irrf: parseFloat(resumo.totalIRRF?.toString() || "0"),
+            pis: bruto * 0.005, cofins: 0,
           },
         };
       }),
@@ -86,77 +145,75 @@ export const appRouter = router({
     getContracheque: protectedProcedure
       .input(z.object({ colaboradorId: z.string(), competencia: z.string() }))
       .query(async ({ input }) => {
+        const folha = await db.getContracheque(input.colaboradorId, input.competencia);
+        const colab = await db.getColaboradorById(input.colaboradorId);
+        if (!folha || !colab) {
+          return { colaborador: "N/A", competencia: input.competencia, proventos: [], descontos: [], totalProventos: 0, totalDescontos: 0, salarioLiquido: 0, fgts: 0 };
+        }
+        const bruto = parseFloat(folha.salarioBruto?.toString() || "0");
+        const inss = parseFloat(folha.inss?.toString() || "0");
+        const irrf = parseFloat(folha.irrf?.toString() || "0");
+        const fgts = parseFloat(folha.fgts?.toString() || "0");
+        const hExtras = parseFloat(folha.horasExtras?.toString() || "0");
+        const adNoturno = parseFloat(folha.adicionalNoturno?.toString() || "0");
         return {
-          colaborador: "João Silva",
+          colaborador: colab.nome,
           competencia: input.competencia,
           proventos: [
-            { descricao: "Salário Base", referencia: "30 dias", valor: 5500.00 },
-            { descricao: "Horas Extras 50%", referencia: "10h", valor: 375.00 },
-            { descricao: "Adicional Noturno", referencia: "20%", valor: 220.00 },
-            { descricao: "Insalubridade", referencia: "20%", valor: 264.00 },
+            { descricao: "Salário Base", referencia: "30 dias", valor: bruto },
+            ...(hExtras > 0 ? [{ descricao: "Horas Extras 50%", referencia: "", valor: hExtras }] : []),
+            ...(adNoturno > 0 ? [{ descricao: "Adicional Noturno", referencia: "20%", valor: adNoturno }] : []),
           ],
           descontos: [
-            { descricao: "INSS", referencia: "14%", valor: 890.88 },
-            { descricao: "IRRF", referencia: "22,5%", valor: 789.50 },
-            { descricao: "Vale Transporte", referencia: "6%", valor: 330.00 },
-            { descricao: "Plano de Saúde", referencia: "", valor: 250.00 },
-            { descricao: "Consignado", referencia: "12/36", valor: 450.00 },
+            { descricao: "INSS", referencia: "14%", valor: inss },
+            { descricao: "IRRF", referencia: "", valor: irrf },
           ],
-          totalProventos: 6359.00,
-          totalDescontos: 2710.38,
-          salarioLiquido: 3648.62,
-          fgts: 508.72,
+          totalProventos: bruto + hExtras + adNoturno,
+          totalDescontos: inss + irrf,
+          salarioLiquido: parseFloat(folha.salarioLiquido?.toString() || "0"),
+          fgts,
         };
       }),
 
     simularFolha: protectedProcedure
       .input(z.object({ competencia: z.string(), reajuste: z.number().optional() }))
       .mutation(async ({ input }) => {
+        const { total } = await db.getColaboradores({ status: "ativo" });
+        const resumo = await db.getResumoFolha(input.competencia);
+        const brutoAtual = parseFloat(resumo?.totalBruto?.toString() || "0");
         const reajuste = input.reajuste || 0;
         return {
           success: true,
           simulacao: {
-            competencia: input.competencia,
-            reajusteAplicado: reajuste,
-            totalBrutoAtual: 1850000.00,
-            totalBrutoSimulado: 1850000.00 * (1 + reajuste / 100),
-            diferencaBruta: 1850000.00 * (reajuste / 100),
-            impactoEncargos: 1850000.00 * (reajuste / 100) * 0.368,
+            competencia: input.competencia, reajusteAplicado: reajuste,
+            totalBrutoAtual: brutoAtual,
+            totalBrutoSimulado: brutoAtual * (1 + reajuste / 100),
+            diferencaBruta: brutoAtual * (reajuste / 100),
+            impactoEncargos: brutoAtual * (reajuste / 100) * 0.368,
           },
         };
       }),
 
     getFerias: protectedProcedure.query(async () => {
-      return {
-        ferias: [
-          { id: "1", colaborador: "João Silva", periodoAquisitivo: "2023-03 a 2024-03", dataInicio: "2025-03-01", dataFim: "2025-03-30", dias: 30, status: "aprovada", abonoPecuniario: false },
-          { id: "2", colaborador: "Maria Santos", periodoAquisitivo: "2023-06 a 2024-06", dataInicio: "2025-04-15", dataFim: "2025-04-29", dias: 15, status: "solicitada", abonoPecuniario: true },
-        ],
-        alertas: [
-          { colaborador: "Pedro Costa", mensagem: "Segundo período de férias vence em 45 dias", criticidade: "alta" },
-          { colaborador: "Ana Oliveira", mensagem: "Férias disponíveis para agendamento", criticidade: "normal" },
-        ],
-      };
+      const feriasList = await db.getFeriasList();
+      return { ferias: feriasList, alertas: [] };
     }),
 
     getRescisoes: protectedProcedure.query(async () => {
-      return {
-        rescisoes: [
-          { id: "1", colaborador: "Ex-Colaborador 1", dataDemissao: "2025-01-15", tipo: "Sem justa causa", totalLiquido: 15890.50, status: "homologada" },
-        ],
-      };
+      const rescisoes = await db.getRescisoes();
+      return { rescisoes };
     }),
 
     getRelatorios: protectedProcedure.query(async () => {
       return {
         relatorios: [
-          { id: "1", nome: "Folha Analítica", tipo: "analitico", competencia: "2025-01", status: "disponivel" },
-          { id: "2", nome: "Folha Sintética", tipo: "sintetico", competencia: "2025-01", status: "disponivel" },
-          { id: "3", nome: "Encargos Sociais", tipo: "encargos", competencia: "2025-01", status: "disponivel" },
-          { id: "4", nome: "GPS", tipo: "gps", competencia: "2025-01", status: "disponivel" },
-          { id: "5", nome: "GFIP/SEFIP", tipo: "sefip", competencia: "2025-01", status: "disponivel" },
-          { id: "6", nome: "DIRF", tipo: "dirf", competencia: "2024", status: "disponivel" },
-          { id: "7", nome: "Informe de Rendimentos", tipo: "irpf", competencia: "2024", status: "disponivel" },
+          { id: "1", nome: "Folha Analítica", tipo: "analitico", competencia: new Date().toISOString().substring(0, 7), status: "disponivel" },
+          { id: "2", nome: "Folha Sintética", tipo: "sintetico", competencia: new Date().toISOString().substring(0, 7), status: "disponivel" },
+          { id: "3", nome: "Encargos Sociais", tipo: "encargos", competencia: new Date().toISOString().substring(0, 7), status: "disponivel" },
+          { id: "4", nome: "GPS", tipo: "gps", competencia: new Date().toISOString().substring(0, 7), status: "disponivel" },
+          { id: "5", nome: "GFIP/SEFIP", tipo: "sefip", competencia: new Date().toISOString().substring(0, 7), status: "disponivel" },
+          { id: "6", nome: "DIRF", tipo: "dirf", competencia: new Date().getFullYear().toString(), status: "disponivel" },
+          { id: "7", nome: "Informe de Rendimentos", tipo: "irpf", competencia: new Date().getFullYear().toString(), status: "disponivel" },
         ],
       };
     }),
@@ -167,153 +224,143 @@ export const appRouter = router({
   // =============================================
   esocial: router({
     getEventos: protectedProcedure.query(async () => {
-      return {
-        eventos: [
-          { id: "1", tipo: "S-1000", descricao: "Informações do Empregador", status: "processado", protocolo: "ESO-2025-001", dataEnvio: "2025-01-10" },
-          { id: "2", tipo: "S-1005", descricao: "Tabela de Estabelecimentos", status: "processado", protocolo: "ESO-2025-002", dataEnvio: "2025-01-10" },
-          { id: "3", tipo: "S-1010", descricao: "Tabela de Rubricas", status: "processado", protocolo: "ESO-2025-003", dataEnvio: "2025-01-10" },
-          { id: "4", tipo: "S-1200", descricao: "Remuneração do Trabalhador", status: "pendente", protocolo: "", dataEnvio: "" },
-          { id: "5", tipo: "S-2200", descricao: "Cadastramento Inicial do Vínculo", status: "processado", protocolo: "ESO-2025-005", dataEnvio: "2025-01-05" },
-          { id: "6", tipo: "S-2210", descricao: "Comunicação de Acidente de Trabalho", status: "pendente", protocolo: "", dataEnvio: "" },
-          { id: "7", tipo: "S-2220", descricao: "Monitoramento da Saúde do Trabalhador", status: "validado", protocolo: "", dataEnvio: "" },
-          { id: "8", tipo: "S-2230", descricao: "Afastamento Temporário", status: "processado", protocolo: "ESO-2025-008", dataEnvio: "2025-01-12" },
-          { id: "9", tipo: "S-2240", descricao: "Condições Ambientais do Trabalho", status: "pendente", protocolo: "", dataEnvio: "" },
-          { id: "10", tipo: "S-2299", descricao: "Desligamento", status: "processado", protocolo: "ESO-2025-010", dataEnvio: "2025-01-15" },
-        ],
-        resumo: { total: 10, processados: 5, pendentes: 3, validados: 1, rejeitados: 0, retificados: 1 },
-      };
+      return db.getEsocialEventos();
     }),
 
     enviarEvento: protectedProcedure
-      .input(z.object({ tipo: z.string(), descricao: z.string() }))
-      .mutation(async ({ input }) => {
-        return {
-          success: true,
-          mensagem: `Evento ${input.tipo} enviado com sucesso`,
-          protocolo: `ESO-${Date.now()}`,
-        };
+      .input(z.object({ tipo: z.string(), descricao: z.string(), colaboradorId: z.string().optional() }))
+      .mutation(async ({ input, ctx }) => {
+        const id = genId();
+        const protocolo = `ESO-${Date.now()}`;
+        await db.criarEsocialEvento({
+          id, tipo: input.tipo, descricao: input.descricao,
+          colaboradorId: input.colaboradorId || null, status: "pendente",
+        });
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "inclusao", modulo: "eSocial",
+          descricao: `Envio de evento ${input.tipo}: ${input.descricao}`,
+        });
+        return { success: true, mensagem: `Evento ${input.tipo} enviado com sucesso`, protocolo };
       }),
 
     getConformidade: protectedProcedure.query(async () => {
+      const { resumo } = await db.getEsocialEventos();
+      const conformidade = resumo.total > 0 ? ((resumo.processados / resumo.total) * 100) : 0;
       return {
-        conformidade: 95.2,
-        eventosProcessados: 45,
-        eventosPendentes: 3,
-        eventosRejeitados: 0,
+        conformidade: Math.round(conformidade * 10) / 10,
+        eventosProcessados: resumo.processados,
+        eventosPendentes: resumo.pendentes,
+        eventosRejeitados: resumo.rejeitados,
         ultimaAtualizacao: new Date().toISOString(),
-        dctfWeb: { status: "em_dia", competencia: "2025-01" },
-        guias: {
-          gps: { status: "gerada", valor: 203500.00 },
-          fgts: { status: "gerada", valor: 148000.00 },
-        },
+        dctfWeb: { status: "em_dia", competencia: new Date().toISOString().substring(0, 7) },
+        guias: { gps: { status: "gerada", valor: 0 }, fgts: { status: "gerada", valor: 0 } },
       };
     }),
 
     preAnalise: protectedProcedure.query(async () => {
-      return {
-        inconsistencias: [
-          { tipo: "PIS Inválido", colaborador: "Carlos Ferreira", campo: "pis", mensagem: "PIS com dígito verificador inválido", criticidade: "alta" },
-          { tipo: "Data Admissão", colaborador: "Novo Colaborador", campo: "dataAdmissao", mensagem: "Data de admissão não informada", criticidade: "alta" },
-          { tipo: "Divergência Nome", colaborador: "Maria S. Santos", campo: "nome", mensagem: "Nome diverge entre Receita Federal e INSS", criticidade: "media" },
-        ],
-        totalInconsistencias: 3,
-        aptos: 244,
-        total: 247,
-      };
+      const { colaboradores: colabs } = await db.getColaboradores({ status: "ativo" });
+      const inconsistencias: { tipo: string; colaborador: string; campo: string; mensagem: string; criticidade: string }[] = [];
+      for (const c of colabs) {
+        if (!c.pis) inconsistencias.push({ tipo: "PIS Ausente", colaborador: c.nome, campo: "pis", mensagem: "PIS não informado", criticidade: "alta" });
+        if (!c.cpf) inconsistencias.push({ tipo: "CPF Ausente", colaborador: c.nome, campo: "cpf", mensagem: "CPF não informado", criticidade: "alta" });
+      }
+      return { inconsistencias, totalInconsistencias: inconsistencias.length, aptos: colabs.length - inconsistencias.length, total: colabs.length };
     }),
   }),
 
   // =============================================
-  // 3.3 CONTROLE DE PONTO E PORTARIA 671
+  // 3.3 CONTROLE DE PONTO
   // =============================================
   ponto: router({
     getRegistros: protectedProcedure
       .input(z.object({ data: z.string().optional(), colaboradorId: z.string().optional() }).optional())
-      .query(async () => {
-        return {
-          registros: [
-            { id: "1", colaborador: "João Silva", data: "2025-02-11", entrada: "07:55", intervaloSaida: "12:00", intervaloRetorno: "13:00", saida: "17:05", horasTrabalhadas: "8h10", horasExtras: "0h10", status: "regular", metodo: "facial" },
-            { id: "2", colaborador: "Maria Santos", data: "2025-02-11", entrada: "08:02", intervaloSaida: "12:15", intervaloRetorno: "13:15", saida: "17:30", horasTrabalhadas: "8h28", horasExtras: "0h28", status: "regular", metodo: "biometria" },
-            { id: "3", colaborador: "Pedro Costa", data: "2025-02-11", entrada: "08:30", intervaloSaida: "12:00", intervaloRetorno: "13:00", saida: "17:00", horasTrabalhadas: "7h30", horasExtras: "0h00", status: "atraso", metodo: "geolocalizacao" },
-          ],
-          total: 3,
-        };
+      .query(async ({ input }) => {
+        return db.getPontoRegistros(input || undefined);
       }),
 
     registrarPonto: protectedProcedure
-      .input(z.object({ tipo: z.enum(["entrada", "saida", "intervalo_inicio", "intervalo_fim"]), metodo: z.string().optional(), latitude: z.number().optional(), longitude: z.number().optional() }))
-      .mutation(async ({ input }) => {
-        return {
-          success: true,
-          mensagem: `Ponto de ${input.tipo} registrado com sucesso`,
-          timestamp: new Date().toISOString(),
-          metodo: input.metodo || "manual",
-        };
+      .input(z.object({
+        tipo: z.enum(["entrada", "saida", "intervalo_inicio", "intervalo_fim"]),
+        metodo: z.string().optional(), latitude: z.number().optional(), longitude: z.number().optional(),
+        colaboradorId: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const id = genId();
+        const now = new Date();
+        const hora = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+        const data = now.toISOString().substring(0, 10);
+        await db.registrarPonto({
+          id, colaboradorId: input.colaboradorId || ctx.user.id,
+          dataRegistro: new Date(data), horaRegistro: hora,
+          tipo: input.tipo, metodo: (input.metodo as any) || "manual",
+          latitude: input.latitude?.toString() || null,
+          longitude: input.longitude?.toString() || null,
+        });
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "inclusao", modulo: "Ponto",
+          descricao: `Registro de ponto: ${input.tipo} às ${hora}`,
+        });
+        return { success: true, mensagem: `Ponto de ${input.tipo} registrado com sucesso`, timestamp: now.toISOString(), metodo: input.metodo || "manual" };
       }),
 
-    getEstatisticas: protectedProcedure.query(async () => {
+    getEstatisticas: protectedProcedure.query(async ({ ctx }) => {
+      const { registros } = await db.getPontoRegistros({ colaboradorId: ctx.user.id });
       return {
-        totalHoras: 176,
-        horasExtras: 12.5,
-        horasNoturnas: 0,
-        faltas: 0,
-        atrasos: 2,
-        assiduidade: 98.5,
-        bancoHoras: 4.5,
-        diasTrabalhados: 22,
+        totalHoras: registros.length * 8,
+        horasExtras: 0, horasNoturnas: 0, faltas: 0, atrasos: 0,
+        assiduidade: 100, bancoHoras: 0,
+        diasTrabalhados: new Set(registros.map(r => r.dataRegistro)).size,
       };
     }),
 
     getEscalas: protectedProcedure.query(async () => {
-      return {
-        escalas: [
-          { id: "1", nome: "Administrativo", tipo: "fixa", entrada: "08:00", saida: "17:00", intervalo: "12:00-13:00", tolerancia: 10 },
-          { id: "2", nome: "Operacional 12x36", tipo: "12x36", entrada: "07:00", saida: "19:00", intervalo: "12:00-13:00", tolerancia: 5 },
-          { id: "3", nome: "Flexível", tipo: "flexivel", entrada: "07:00-09:00", saida: "16:00-18:00", intervalo: "1h", tolerancia: 15 },
-        ],
-      };
+      const escalas = await db.getPontoEscalas();
+      return { escalas };
     }),
 
-    getBancoHoras: protectedProcedure.query(async () => {
+    getBancoHoras: protectedProcedure.query(async ({ ctx }) => {
+      const historico = await db.getBancoHorasColaborador(ctx.user.id);
+      const saldoAtual = historico.length > 0 ? parseFloat(historico[0].saldoAtual?.toString() || "0") : 0;
       return {
-        saldoAtual: 4.5,
-        creditoMes: 12.5,
-        debitoMes: 8.0,
-        historico: [
-          { competencia: "2025-01", credito: 10.0, debito: 6.0, saldo: 4.0 },
-          { competencia: "2024-12", credito: 8.0, debito: 12.0, saldo: -4.0 },
-        ],
+        saldoAtual, creditoMes: 0, debitoMes: 0,
+        historico: historico.map(h => ({
+          competencia: h.competencia,
+          credito: parseFloat(h.creditoHoras?.toString() || "0"),
+          debito: parseFloat(h.debitoHoras?.toString() || "0"),
+          saldo: parseFloat(h.saldoAtual?.toString() || "0"),
+        })),
       };
     }),
 
     getEspelhoPonto: protectedProcedure
       .input(z.object({ colaboradorId: z.string(), competencia: z.string() }))
       .query(async ({ input }) => {
+        const colab = await db.getColaboradorById(input.colaboradorId);
+        const { registros } = await db.getPontoRegistros({ colaboradorId: input.colaboradorId });
+        const diasMap = new Map<string, typeof registros>();
+        for (const r of registros) {
+          const key = r.dataRegistro?.toString() || "";
+          if (!diasMap.has(key)) diasMap.set(key, []);
+          diasMap.get(key)!.push(r);
+        }
+        const dias = Array.from(diasMap.entries()).map(([dia, regs]) => ({
+          dia: parseInt(dia.split("-")[2] || "0"),
+          entrada: regs.find(r => r.tipo === "entrada")?.horaRegistro || "",
+          intervaloSaida: regs.find(r => r.tipo === "intervalo_inicio")?.horaRegistro || "",
+          intervaloRetorno: regs.find(r => r.tipo === "intervalo_fim")?.horaRegistro || "",
+          saida: regs.find(r => r.tipo === "saida")?.horaRegistro || "",
+          horasTrabalhadas: "8h00", observacao: "",
+        }));
         return {
-          colaborador: "João Silva",
-          competencia: input.competencia,
-          dias: Array.from({ length: 22 }, (_, i) => ({
-            dia: i + 1,
-            entrada: "08:00",
-            intervaloSaida: "12:00",
-            intervaloRetorno: "13:00",
-            saida: "17:00",
-            horasTrabalhadas: "8h00",
-            observacao: i === 5 ? "Feriado" : "",
-          })),
-          totalHoras: 176,
-          horasExtras: 8,
-          faltas: 0,
+          colaborador: colab?.nome || "N/A", competencia: input.competencia,
+          dias, totalHoras: dias.length * 8, horasExtras: 0, faltas: 0,
         };
       }),
 
     getOcorrencias: protectedProcedure.query(async () => {
-      return {
-        ocorrencias: [
-          { id: "1", colaborador: "Pedro Costa", tipo: "Atraso", data: "2025-02-11", descricao: "Atraso de 30 min na entrada", status: "pendente" },
-          { id: "2", colaborador: "João Silva", tipo: "Interjornada", data: "2025-02-10", descricao: "Intervalo interjornada inferior a 11h", status: "notificado" },
-        ],
-      };
+      return { ocorrencias: [] };
     }),
   }),
 
@@ -322,44 +369,43 @@ export const appRouter = router({
   // =============================================
   beneficios: router({
     getResumo: protectedProcedure.query(async () => {
-      return {
-        totalColaboradores: 247,
-        custoMensal: 185000.00,
-        beneficiosAtivos: 892,
-        tipos: [
-          { tipo: "Vale Transporte", quantidade: 210, custoMensal: 63000.00, percentualDesconto: 6 },
-          { tipo: "Vale Alimentação", quantidade: 247, custoMensal: 49400.00, valorUnitario: 200.00 },
-          { tipo: "Vale Refeição", quantidade: 247, custoMensal: 86450.00, valorUnitario: 350.00 },
-          { tipo: "Plano de Saúde", quantidade: 195, custoMensal: 97500.00, faixas: "Por idade" },
-          { tipo: "Plano Odontológico", quantidade: 180, custoMensal: 9000.00, valorUnitario: 50.00 },
-          { tipo: "Auxílio Creche", quantidade: 15, custoMensal: 7500.00, valorUnitario: 500.00 },
-          { tipo: "Seguro de Vida", quantidade: 247, custoMensal: 12350.00, valorUnitario: 50.00 },
-        ],
-      };
+      const resumo = await db.getBeneficiosResumo();
+      return resumo || { totalColaboradores: 0, custoMensal: 0, beneficiosAtivos: 0, tipos: [] };
     }),
 
     getBeneficiosColaborador: protectedProcedure
       .input(z.object({ colaboradorId: z.string() }))
-      .query(async () => {
-        return {
-          beneficios: [
-            { id: "1", tipo: "Vale Transporte", valorEmpresa: 300.00, valorColaborador: 198.00, status: "ativo" },
-            { id: "2", tipo: "Vale Alimentação", valorEmpresa: 200.00, valorColaborador: 0, status: "ativo" },
-            { id: "3", tipo: "Vale Refeição", valorEmpresa: 350.00, valorColaborador: 0, status: "ativo" },
-            { id: "4", tipo: "Plano de Saúde", valorEmpresa: 500.00, valorColaborador: 150.00, status: "ativo" },
-            { id: "5", tipo: "Plano Odontológico", valorEmpresa: 50.00, valorColaborador: 0, status: "ativo" },
-          ],
-        };
+      .query(async ({ input }) => {
+        const lista = await db.getBeneficiosColaborador(input.colaboradorId);
+        return { beneficios: lista };
+      }),
+
+    criarBeneficio: protectedProcedure
+      .input(z.object({
+        colaboradorId: z.string(), tipo: z.string(), descricao: z.string().optional(),
+        valorEmpresa: z.string().optional(), valorColaborador: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const id = genId();
+        await db.criarBeneficio({
+          id, colaboradorId: input.colaboradorId, tipo: input.tipo as any,
+          descricao: input.descricao || null,
+          valorEmpresa: input.valorEmpresa || "0",
+          valorColaborador: input.valorColaborador || "0",
+          status: "ativo",
+        });
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "inclusao", modulo: "Benefícios",
+          descricao: `Benefício ${input.tipo} criado para colaborador ${input.colaboradorId}`,
+        });
+        return { success: true, mensagem: "Benefício criado com sucesso", id };
       }),
 
     getConsignados: protectedProcedure.query(async () => {
-      return {
-        emprestimos: [
-          { id: "1", colaborador: "João Silva", fornecedor: "Banco do Brasil", valorTotal: 15000.00, parcelas: 36, valorParcela: 520.00, parcelasRestantes: 24, status: "ativo" },
-          { id: "2", colaborador: "Maria Santos", fornecedor: "Caixa Econômica", valorTotal: 8000.00, parcelas: 24, valorParcela: 400.00, parcelasRestantes: 12, status: "ativo" },
-        ],
-        totalDescontoMensal: 920.00,
-      };
+      const emprestimos = await db.getConsignados();
+      const totalDesconto = emprestimos.reduce((acc, e) => acc + parseFloat(e.valorParcela?.toString() || "0"), 0);
+      return { emprestimos, totalDescontoMensal: totalDesconto };
     }),
 
     getRelatorios: protectedProcedure.query(async () => {
@@ -379,21 +425,27 @@ export const appRouter = router({
   // =============================================
   sst: router({
     getDashboard: protectedProcedure.query(async () => {
+      const exames = await db.getSstExames();
+      const cats = await db.getSstCats();
+      const epis = await db.getSstEpis();
+      const cipa = await db.getSstCipaMembers();
+      const now = new Date();
+      const vencidos = exames.filter(e => e.dataValidade && new Date(e.dataValidade) < now).length;
+      const episVencidos = epis.filter(e => e.dataValidade && new Date(e.dataValidade) < now).length;
       return {
         indicadores: {
-          taxaAcidentes: 0.8,
-          diasSemAcidentes: 127,
-          examesVencidos: 3,
-          examesProximos: 12,
-          episVencidos: 5,
-          cipaAtiva: true,
-          nrsConformes: 6,
-          nrsTotal: 6,
+          taxaAcidentes: cats.length > 0 ? cats.length / 12 : 0,
+          diasSemAcidentes: cats.length > 0 ? Math.floor((now.getTime() - new Date(cats[0].dataAcidente).getTime()) / 86400000) : 365,
+          examesVencidos: vencidos,
+          examesProximos: exames.filter(e => e.dataValidade && new Date(e.dataValidade) < new Date(now.getTime() + 30 * 86400000) && new Date(e.dataValidade) >= now).length,
+          episVencidos,
+          cipaAtiva: cipa.length > 0,
+          nrsConformes: 6, nrsTotal: 6,
         },
         nrs: [
           { nr: "NR-01", descricao: "Disposições Gerais", status: "conforme" },
-          { nr: "NR-05", descricao: "CIPA", status: "conforme" },
-          { nr: "NR-06", descricao: "EPI", status: "conforme" },
+          { nr: "NR-05", descricao: "CIPA", status: cipa.length > 0 ? "conforme" : "pendente" },
+          { nr: "NR-06", descricao: "EPI", status: episVencidos === 0 ? "conforme" : "atenção" },
           { nr: "NR-07", descricao: "PCMSO", status: "conforme" },
           { nr: "NR-17", descricao: "Ergonomia", status: "conforme" },
           { nr: "NR-32", descricao: "Segurança em Saúde", status: "conforme" },
@@ -402,63 +454,53 @@ export const appRouter = router({
     }),
 
     getExames: protectedProcedure.query(async () => {
+      const exames = await db.getSstExames();
+      const now = new Date();
       return {
-        exames: [
-          { id: "1", colaborador: "João Silva", tipo: "periodico", descricao: "Clínico + Audiometria", data: "2025-01-15", validade: "2026-01-15", resultado: "apto", medico: "Dr. Carlos Mendes" },
-          { id: "2", colaborador: "Maria Santos", tipo: "periodico", descricao: "Clínico + Espirometria", data: "2025-01-20", validade: "2026-01-20", resultado: "apto", medico: "Dr. Carlos Mendes" },
-          { id: "3", colaborador: "Pedro Costa", tipo: "admissional", descricao: "Clínico Completo", data: "2024-12-20", validade: "2025-12-20", resultado: "apto", medico: "Dra. Ana Lima" },
-        ],
-        vencidos: 3,
-        proximos30Dias: 12,
+        exames,
+        vencidos: exames.filter(e => e.dataValidade && new Date(e.dataValidade) < now).length,
+        proximos30Dias: exames.filter(e => e.dataValidade && new Date(e.dataValidade) < new Date(now.getTime() + 30 * 86400000) && new Date(e.dataValidade) >= now).length,
       };
     }),
 
     registrarASO: protectedProcedure
-      .input(z.object({ colaboradorId: z.string(), tipo: z.string(), resultado: z.string(), data: z.string() }))
-      .mutation(async ({ input }) => {
-        return { success: true, mensagem: "ASO registrado com sucesso", id: genId() };
+      .input(z.object({ colaboradorId: z.string(), tipo: z.string(), resultado: z.string(), data: z.string(), medicoResponsavel: z.string().optional(), crm: z.string().optional() }))
+      .mutation(async ({ input, ctx }) => {
+        const id = genId();
+        await db.criarSstExame({
+          id, colaboradorId: input.colaboradorId, tipo: input.tipo as any,
+          dataExame: new Date(input.data), resultado: input.resultado as any,
+          medicoResponsavel: input.medicoResponsavel || null, crm: input.crm || null,
+        });
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "inclusao", modulo: "SST", descricao: `ASO registrado para colaborador ${input.colaboradorId}`,
+        });
+        return { success: true, mensagem: "ASO registrado com sucesso", id };
       }),
 
     getCATs: protectedProcedure.query(async () => {
-      return {
-        cats: [
-          { id: "1", colaborador: "Ex-Colaborador", data: "2024-06-10", tipo: "tipico", descricao: "Queda de altura", gravidade: "moderado", diasAfastamento: 15, status: "processada" },
-        ],
-        totalAno: 1,
-        taxaFrequencia: 0.8,
-      };
+      const cats = await db.getSstCats();
+      return { cats, totalAno: cats.length, taxaFrequencia: cats.length > 0 ? cats.length / 12 : 0 };
     }),
 
     getEPIs: protectedProcedure.query(async () => {
-      return {
-        epis: [
-          { id: "1", colaborador: "Pedro Costa", equipamento: "Capacete de Segurança", ca: "CA-12345", dataEntrega: "2025-01-10", validade: "2026-01-10", reciboAssinado: true },
-          { id: "2", colaborador: "Pedro Costa", equipamento: "Luvas de Proteção", ca: "CA-67890", dataEntrega: "2025-01-10", validade: "2025-07-10", reciboAssinado: true },
-          { id: "3", colaborador: "João Silva", equipamento: "Óculos de Proteção", ca: "CA-11111", dataEntrega: "2024-11-15", validade: "2025-05-15", reciboAssinado: true },
-        ],
-        vencidos: 5,
-      };
+      const epis = await db.getSstEpis();
+      const now = new Date();
+      return { epis, vencidos: epis.filter(e => e.dataValidade && new Date(e.dataValidade) < now).length };
     }),
 
     getCIPA: protectedProcedure.query(async () => {
-      return {
-        membros: [
-          { id: "1", colaborador: "Ana Oliveira", funcao: "presidente", mandatoInicio: "2024-06-01", mandatoFim: "2025-06-01", status: "ativo" },
-          { id: "2", colaborador: "Pedro Costa", funcao: "vice_presidente", mandatoInicio: "2024-06-01", mandatoFim: "2025-06-01", status: "ativo" },
-          { id: "3", colaborador: "Maria Santos", funcao: "secretario", mandatoInicio: "2024-06-01", mandatoFim: "2025-06-01", status: "ativo" },
-        ],
-        mandatoVigente: "2024-2025",
-        proximaEleicao: "2025-05-15",
-      };
+      const membros = await db.getSstCipaMembers();
+      return { membros, mandatoVigente: new Date().getFullYear().toString(), proximaEleicao: "" };
     }),
 
     getLaudos: protectedProcedure.query(async () => {
       return {
         laudos: [
-          { id: "1", nome: "PGR 2025", tipo: "PGR", data: "2025-01-20", validade: "2026-01-20", status: "vigente" },
-          { id: "2", nome: "PCMSO 2025", tipo: "PCMSO", data: "2025-01-20", validade: "2026-01-20", status: "vigente" },
-          { id: "3", nome: "LTCAT 2025", tipo: "LTCAT", data: "2025-01-20", validade: "2026-01-20", status: "vigente" },
-          { id: "4", nome: "PPP - João Silva", tipo: "PPP", data: "2025-01-15", validade: "", status: "emitido" },
+          { id: "1", nome: `PGR ${new Date().getFullYear()}`, tipo: "PGR", data: new Date().toISOString().substring(0, 10), validade: "", status: "vigente" },
+          { id: "2", nome: `PCMSO ${new Date().getFullYear()}`, tipo: "PCMSO", data: new Date().toISOString().substring(0, 10), validade: "", status: "vigente" },
+          { id: "3", nome: `LTCAT ${new Date().getFullYear()}`, tipo: "LTCAT", data: new Date().toISOString().substring(0, 10), validade: "", status: "vigente" },
         ],
       };
     }),
@@ -469,41 +511,29 @@ export const appRouter = router({
   // =============================================
   medicina: router({
     getProntuarios: protectedProcedure.query(async () => {
-      return {
-        prontuarios: [
-          { id: "1", colaborador: "João Silva", ultimaConsulta: "2025-01-15", totalConsultas: 5, restricoes: "Nenhuma", status: "apto" },
-          { id: "2", colaborador: "Maria Santos", ultimaConsulta: "2025-01-20", totalConsultas: 3, restricoes: "Restrição para trabalho em altura", status: "apto_restricao" },
-        ],
-      };
+      const prontuarios = await db.getProntuarios();
+      return { prontuarios };
     }),
 
     getAfastamentos: protectedProcedure.query(async () => {
-      return {
-        afastamentos: [
-          { id: "1", colaborador: "Carlos Ferreira", tipo: "doenca", dataInicio: "2025-01-20", previsaoRetorno: "2025-02-20", cid: "M54", diasAfastamento: 30, status: "ativo" },
-          { id: "2", colaborador: "Ana Lima", tipo: "maternidade", dataInicio: "2024-12-01", previsaoRetorno: "2025-03-30", cid: "", diasAfastamento: 120, status: "ativo" },
-        ],
-        totalAtivos: 2,
-        totalAno: 8,
-      };
+      const afastamentos = await db.getAfastamentosList();
+      const ativos = afastamentos.filter(a => a.status === "ativo");
+      return { afastamentos, totalAtivos: ativos.length, totalAno: afastamentos.length };
     }),
 
     getGestantes: protectedProcedure.query(async () => {
-      return {
-        gestantes: [
-          { id: "1", colaborador: "Ana Lima", previsaoParto: "2025-02-15", semanasGestacao: 36, restricoes: "Sem esforço físico", status: "licenca" },
-        ],
-      };
+      const afastamentos = await db.getAfastamentosList("ativo");
+      const gestantes = afastamentos.filter(a => a.tipo === "maternidade");
+      return { gestantes };
     }),
 
     getExamesOcupacionais: protectedProcedure.query(async () => {
+      const exames = await db.getSstExames();
+      const now = new Date();
       return {
-        agenda: [
-          { id: "1", colaborador: "Pedro Costa", tipo: "periodico", dataAgendada: "2025-03-15", medico: "Dr. Carlos Mendes", status: "agendado" },
-          { id: "2", colaborador: "João Silva", tipo: "retorno", dataAgendada: "2025-02-20", medico: "Dra. Ana Lima", status: "agendado" },
-        ],
-        vencidos: 3,
-        proximos30Dias: 12,
+        agenda: exames.filter(e => e.resultado === "pendente"),
+        vencidos: exames.filter(e => e.dataValidade && new Date(e.dataValidade) < now).length,
+        proximos30Dias: exames.filter(e => e.dataValidade && new Date(e.dataValidade) < new Date(now.getTime() + 30 * 86400000) && new Date(e.dataValidade) >= now).length,
       };
     }),
   }),
@@ -513,64 +543,45 @@ export const appRouter = router({
   // =============================================
   desempenho: router({
     getDashboard: protectedProcedure.query(async () => {
+      const avaliacoesList = await db.getAvaliacoesList();
+      const concluidas = avaliacoesList.filter(a => a.status === "concluida");
+      const mediaGeral = concluidas.length > 0
+        ? concluidas.reduce((acc, a) => acc + parseFloat(a.notaFinal?.toString() || "0"), 0) / concluidas.length
+        : 0;
       return {
-        cicloAtual: "2025-S1",
-        avaliacoesTotal: 247,
-        avaliacoesConcluidas: 180,
-        avaliacoesPendentes: 67,
-        mediaGeral: 4.2,
+        cicloAtual: `${new Date().getFullYear()}-S1`,
+        avaliacoesTotal: avaliacoesList.length,
+        avaliacoesConcluidas: concluidas.length,
+        avaliacoesPendentes: avaliacoesList.filter(a => a.status === "pendente").length,
+        mediaGeral: Math.round(mediaGeral * 10) / 10,
         distribuicao9Box: {
-          altoDesempenhoAltoPotencial: 25,
-          altoDesempenhoMedioPotencial: 45,
-          altoDesempenhoBaixoPotencial: 15,
-          medioDesempenhoAltoPotencial: 30,
-          medioDesempenhoMedioPotencial: 80,
-          medioDesempenhoBaixoPotencial: 20,
-          baixoDesempenhoAltoPotencial: 10,
-          baixoDesempenhoMedioPotencial: 15,
-          baixoDesempenhoBaixoPotencial: 7,
+          altoDesempenhoAltoPotencial: 0, altoDesempenhoMedioPotencial: 0, altoDesempenhoBaixoPotencial: 0,
+          medioDesempenhoAltoPotencial: 0, medioDesempenhoMedioPotencial: 0, medioDesempenhoBaixoPotencial: 0,
+          baixoDesempenhoAltoPotencial: 0, baixoDesempenhoMedioPotencial: 0, baixoDesempenhoBaixoPotencial: 0,
         },
       };
     }),
 
     getAvaliacoes: protectedProcedure
       .input(z.object({ ciclo: z.string().optional() }).optional())
-      .query(async () => {
-        return {
-          avaliacoes: [
-            { id: "1", colaborador: "João Silva", avaliador: "Ana Oliveira", ciclo: "2025-S1", tipo: "360", notaFinal: 4.5, status: "concluida" },
-            { id: "2", colaborador: "Maria Santos", avaliador: "Ana Oliveira", ciclo: "2025-S1", tipo: "180", notaFinal: 4.8, status: "concluida" },
-            { id: "3", colaborador: "Pedro Costa", avaliador: "João Silva", ciclo: "2025-S1", tipo: "90", notaFinal: 0, status: "pendente" },
-          ],
-        };
+      .query(async ({ input }) => {
+        const avaliacoesList = await db.getAvaliacoesList(input?.ciclo);
+        return { avaliacoes: avaliacoesList };
       }),
 
     getOKRs: protectedProcedure.query(async () => {
-      return {
-        okrs: [
-          { id: "1", colaborador: "João Silva", objetivo: "Reduzir turnover em 15%", resultadoChave: "Taxa de turnover < 5%", meta: 5, realizado: 3.2, percentual: 64, status: "em_andamento" },
-          { id: "2", colaborador: "Maria Santos", objetivo: "Implementar programa de SST", resultadoChave: "Zero acidentes no trimestre", meta: 0, realizado: 0, percentual: 100, status: "concluida" },
-          { id: "3", colaborador: "Pedro Costa", objetivo: "Automatizar processos de DP", resultadoChave: "80% dos processos automatizados", meta: 80, realizado: 45, percentual: 56, status: "em_andamento" },
-        ],
-      };
+      const okrs = await db.getMetasOkrList();
+      return { okrs };
     }),
 
     getPDIs: protectedProcedure.query(async () => {
-      return {
-        pdis: [
-          { id: "1", colaborador: "João Silva", competencia: "Liderança", acao: "Curso de Gestão de Equipes", prazo: "2025-06-30", status: "em_andamento" },
-          { id: "2", colaborador: "Pedro Costa", competencia: "Comunicação", acao: "Workshop de Comunicação Assertiva", prazo: "2025-04-30", status: "pendente" },
-        ],
-      };
+      const pdis = await db.getPdiList();
+      return { pdis };
     }),
 
     getFeedbacks: protectedProcedure.query(async () => {
-      return {
-        feedbacks: [
-          { id: "1", de: "Ana Oliveira", para: "João Silva", tipo: "elogio", mensagem: "Excelente trabalho na implementação do novo sistema de ponto!", data: "2025-02-10", publico: true },
-          { id: "2", de: "João Silva", para: "Pedro Costa", tipo: "construtivo", mensagem: "Melhorar pontualidade nas entregas de relatórios", data: "2025-02-08", publico: false },
-        ],
-      };
+      const feedbacksList = await db.getFeedbacksList();
+      return { feedbacks: feedbacksList };
     }),
   }),
 
@@ -580,89 +591,91 @@ export const appRouter = router({
   portal: router({
     getContracheques: protectedProcedure
       .input(z.object({ mes: z.string().optional() }).optional())
-      .query(async () => {
+      .query(async ({ ctx }) => {
+        const folhas = await db.getFolhasPagamento();
+        const userFolhas = folhas.filter(f => f.colaboradorId === ctx.user.id);
         return {
-          contracheques: [
-            { id: "1", competencia: "2025-01", salarioBruto: 5500.00, totalDescontos: 1890.38, salarioLiquido: 3609.62, dataDisponibilidade: "2025-02-05" },
-            { id: "2", competencia: "2024-12", salarioBruto: 5500.00, totalDescontos: 1890.38, salarioLiquido: 3609.62, dataDisponibilidade: "2025-01-05" },
-          ],
+          contracheques: userFolhas.map(f => ({
+            id: f.id, competencia: f.competencia,
+            salarioBruto: parseFloat(f.salarioBruto?.toString() || "0"),
+            totalDescontos: parseFloat(f.inss?.toString() || "0") + parseFloat(f.irrf?.toString() || "0"),
+            salarioLiquido: parseFloat(f.salarioLiquido?.toString() || "0"),
+            dataDisponibilidade: f.createdAt?.toISOString().substring(0, 10) || "",
+          })),
         };
       }),
 
     getInformeRendimentos: protectedProcedure
       .input(z.object({ ano: z.string().optional() }).optional())
-      .query(async () => {
+      .query(async ({ ctx }) => {
+        const folhas = await db.getFolhasPagamento();
+        const userFolhas = folhas.filter(f => f.colaboradorId === ctx.user.id);
+        const totalBruto = userFolhas.reduce((acc, f) => acc + parseFloat(f.salarioBruto?.toString() || "0"), 0);
+        const totalINSS = userFolhas.reduce((acc, f) => acc + parseFloat(f.inss?.toString() || "0"), 0);
+        const totalIRRF = userFolhas.reduce((acc, f) => acc + parseFloat(f.irrf?.toString() || "0"), 0);
         return {
-          ano: "2024",
-          rendimentosTributaveis: 66000.00,
-          contribuicaoPrevidenciaria: 10690.56,
-          impostoRetido: 9474.00,
-          decimoTerceiro: 5500.00,
+          ano: new Date().getFullYear().toString(),
+          rendimentosTributaveis: totalBruto,
+          contribuicaoPrevidenciaria: totalINSS,
+          impostoRetido: totalIRRF,
+          decimoTerceiro: 0,
           status: "disponivel",
         };
       }),
 
-    getFerias: protectedProcedure.query(async () => {
+    getFerias: protectedProcedure.query(async ({ ctx }) => {
+      const feriasList = await db.getFeriasList();
+      const userFerias = feriasList.filter(f => f.colaboradorId === ctx.user.id);
       return {
-        feriasDisponiveis: { diasDisponiveis: 30, periodoAquisitivo: "2024-03 a 2025-03", vencimento: "2026-03-15" },
-        historicoFerias: [
-          { id: "1", periodo: "2024-01-15 a 2024-01-29", dias: 15, status: "gozada" },
-          { id: "2", periodo: "2024-07-01 a 2024-07-15", dias: 15, status: "gozada" },
-        ],
+        feriasDisponiveis: { diasDisponiveis: 30, periodoAquisitivo: "", vencimento: "" },
+        historicoFerias: userFerias,
       };
     }),
 
     solicitarFerias: protectedProcedure
       .input(z.object({ dataInicio: z.string(), dias: z.number(), abonoPecuniario: z.boolean().optional() }))
-      .mutation(async ({ input }) => {
-        return { success: true, mensagem: `Férias de ${input.dias} dias solicitadas a partir de ${input.dataInicio}`, id: genId() };
+      .mutation(async ({ input, ctx }) => {
+        const id = genId();
+        const dataFim = new Date(input.dataInicio);
+        dataFim.setDate(dataFim.getDate() + input.dias);
+        await db.criarFerias({
+          id, colaboradorId: ctx.user.id,
+          dataInicio: new Date(input.dataInicio), dataFim: dataFim,
+          dias: input.dias, abonoPecuniario: input.abonoPecuniario || false,
+          status: "solicitada",
+        });
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "inclusao", modulo: "Portal",
+          descricao: `Solicitação de férias: ${input.dias} dias a partir de ${input.dataInicio}`,
+        });
+        return { success: true, mensagem: `Férias de ${input.dias} dias solicitadas a partir de ${input.dataInicio}`, id };
       }),
 
-    getDocumentos: protectedProcedure.query(async () => {
-      return {
-        documentos: [
-          { id: "1", nome: "Contrato de Trabalho", tipo: "contrato", data: "2020-03-15" },
-          { id: "2", nome: "Declaração de Vínculo", tipo: "declaracao", data: "2025-01-10" },
-          { id: "3", nome: "Informe de Rendimentos 2024", tipo: "irpf", data: "2025-02-01" },
-          { id: "4", nome: "Comprovante de Férias", tipo: "ferias", data: "2024-07-01" },
-        ],
-      };
+    getDocumentos: protectedProcedure.query(async ({ ctx }) => {
+      const docs = await db.getDocumentosColaboradorList(ctx.user.id);
+      return { documentos: docs };
     }),
 
     getTreinamentos: protectedProcedure.query(async () => {
-      return {
-        treinamentos: [
-          { id: "1", titulo: "NR-35 - Trabalho em Altura", data: "2025-03-15", cargaHoraria: 8, tipo: "presencial", status: "agendado" },
-          { id: "2", titulo: "LGPD para Colaboradores", data: "2025-02-20", cargaHoraria: 4, tipo: "online", status: "inscrito" },
-          { id: "3", titulo: "Primeiros Socorros", data: "2024-11-10", cargaHoraria: 16, tipo: "presencial", status: "concluido" },
-        ],
-      };
+      const treinamentos = await db.getTreinamentosList();
+      return { treinamentos };
     }),
 
-    getAvaliacoesPendentes: protectedProcedure.query(async () => {
-      return {
-        avaliacoes: [
-          { id: "1", tipo: "Avaliação 360°", ciclo: "2025-S1", prazo: "2025-03-31", status: "pendente" },
-        ],
-      };
+    getAvaliacoesPendentes: protectedProcedure.query(async ({ ctx }) => {
+      const avaliacoesList = await db.getAvaliacoesList();
+      const pendentes = avaliacoesList.filter(a => a.colaboradorId === ctx.user.id && a.status === "pendente");
+      return { avaliacoes: pendentes };
     }),
 
     getComunicados: protectedProcedure.query(async () => {
-      return {
-        comunicados: [
-          { id: "1", titulo: "Novo Horário de Funcionamento", conteudo: "A partir de março, o expediente será das 7h às 16h.", tipo: "aviso", data: "2025-02-10" },
-          { id: "2", titulo: "Campanha de Vacinação", conteudo: "Vacinação contra gripe disponível no ambulatório.", tipo: "comunicado", data: "2025-02-08" },
-          { id: "3", titulo: "Aniversariantes do Mês", conteudo: "Parabéns aos aniversariantes de fevereiro!", tipo: "endomarketing", data: "2025-02-01" },
-        ],
-      };
+      const comunicadosList = await db.getComunicadosList();
+      return { comunicados: comunicadosList };
     }),
 
     getPesquisaClima: protectedProcedure.query(async () => {
-      return {
-        pesquisas: [
-          { id: "1", titulo: "Pesquisa de Clima 2025", descricao: "Avalie o ambiente de trabalho", dataFim: "2025-03-15", status: "ativa", respondida: false },
-        ],
-      };
+      const pesquisas = await db.getPesquisasClima();
+      return { pesquisas };
     }),
   }),
 
@@ -671,48 +684,44 @@ export const appRouter = router({
   // =============================================
   acesso: router({
     getDashboard: protectedProcedure.query(async () => {
+      const acessos = await db.getAcessosPortariaList();
+      const visitantesList = await db.getVisitantesList("presente");
       return {
-        pessoasPresentes: 185,
-        visitantesHoje: 12,
-        acessosHoje: 420,
-        acessosNegados: 2,
-        dispositivos: [
-          { id: "1", nome: "Catraca Principal", tipo: "catraca_facial", status: "online", acessosHoje: 180 },
-          { id: "2", nome: "Catraca Secundária", tipo: "catraca_facial", status: "online", acessosHoje: 120 },
-          { id: "3", nome: "Porta Sala TI", tipo: "porta_senha", status: "online", acessosHoje: 45 },
-          { id: "4", nome: "Porta Sala RH", tipo: "porta_senha", status: "online", acessosHoje: 30 },
-          { id: "5", nome: "Porta Diretoria", tipo: "porta_senha", status: "online", acessosHoje: 15 },
-          { id: "6", nome: "Porta Almoxarifado", tipo: "porta_senha", status: "offline", acessosHoje: 0 },
-        ],
+        pessoasPresentes: acessos.filter(a => a.direcao === "entrada" && a.autorizado).length,
+        visitantesHoje: visitantesList.length,
+        acessosHoje: acessos.length,
+        acessosNegados: acessos.filter(a => !a.autorizado).length,
+        dispositivos: [],
       };
     }),
 
     getVisitantes: protectedProcedure.query(async () => {
-      return {
-        visitantes: [
-          { id: "1", nome: "Roberto Almeida", documento: "123.456.789-00", empresa: "Fornecedor ABC", motivoVisita: "Reunião comercial", pessoaVisitada: "Ana Oliveira", entrada: "2025-02-11 09:00", saida: "", status: "presente" },
-          { id: "2", nome: "Fernanda Lima", documento: "987.654.321-00", empresa: "Consultoria XYZ", motivoVisita: "Auditoria", pessoaVisitada: "João Silva", entrada: "2025-02-11 08:30", saida: "2025-02-11 12:00", status: "saiu" },
-        ],
-        agendados: [
-          { id: "3", nome: "Paulo Mendes", documento: "456.789.123-00", empresa: "Manutenção LTDA", motivoVisita: "Manutenção preventiva", pessoaVisitada: "Pedro Costa", dataAgendada: "2025-02-12 14:00", status: "agendado" },
-        ],
-      };
+      const presentes = await db.getVisitantesList("presente");
+      const agendados = await db.getVisitantesList("agendado");
+      const saiu = await db.getVisitantesList("saiu");
+      return { visitantes: [...presentes, ...saiu], agendados };
     }),
 
     registrarVisitante: protectedProcedure
-      .input(z.object({ nome: z.string(), documento: z.string(), empresa: z.string().optional(), motivoVisita: z.string(), pessoaVisitada: z.string() }))
-      .mutation(async ({ input }) => {
-        return { success: true, mensagem: `Visitante ${input.nome} registrado com sucesso`, id: genId() };
+      .input(z.object({ nome: z.string(), documento: z.string(), empresa: z.string().optional(), motivoVisita: z.string(), pessoaVisitada: z.string().optional() }))
+      .mutation(async ({ input, ctx }) => {
+        const id = genId();
+        await db.registrarVisitante({
+          id, nome: input.nome, documento: input.documento,
+          empresa: input.empresa || null, motivoVisita: input.motivoVisita,
+          status: "presente", dataEntrada: new Date(),
+        });
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "inclusao", modulo: "Acesso",
+          descricao: `Visitante registrado: ${input.nome}`,
+        });
+        return { success: true, mensagem: `Visitante ${input.nome} registrado com sucesso`, id };
       }),
 
     getLogAcessos: protectedProcedure.query(async () => {
-      return {
-        logs: [
-          { id: "1", pessoa: "João Silva", tipo: "colaborador", dispositivo: "Catraca Principal", metodo: "facial", direcao: "entrada", horario: "2025-02-11 07:55", autorizado: true },
-          { id: "2", pessoa: "Maria Santos", tipo: "colaborador", dispositivo: "Catraca Principal", metodo: "facial", direcao: "entrada", horario: "2025-02-11 08:02", autorizado: true },
-          { id: "3", pessoa: "Desconhecido", tipo: "visitante", dispositivo: "Catraca Principal", metodo: "facial", direcao: "entrada", horario: "2025-02-11 08:15", autorizado: false },
-        ],
-      };
+      const logs = await db.getAcessosPortariaList();
+      return { logs };
     }),
   }),
 
@@ -721,38 +730,49 @@ export const appRouter = router({
   // =============================================
   quadroVagas: router({
     getResumo: protectedProcedure.query(async () => {
+      const vagas = await db.getQuadroVagasList();
+      const totalEfetivas = vagas.reduce((acc, v) => acc + (v.vagasEfetivas || 0), 0);
+      const totalOcupadas = vagas.reduce((acc, v) => acc + (v.vagasOcupadas || 0), 0);
+      const totalPrevistas = vagas.reduce((acc, v) => acc + (v.vagasPrevistas || 0), 0);
+      const totalOrcamento = vagas.reduce((acc, v) => acc + parseFloat(v.orcamento?.toString() || "0"), 0);
+      const deptMap = new Map<string, { efetivas: number; ocupadas: number; previstas: number; orcamento: number }>();
+      for (const v of vagas) {
+        const dept = v.departamento || "Outros";
+        const existing = deptMap.get(dept) || { efetivas: 0, ocupadas: 0, previstas: 0, orcamento: 0 };
+        existing.efetivas += v.vagasEfetivas || 0;
+        existing.ocupadas += v.vagasOcupadas || 0;
+        existing.previstas += v.vagasPrevistas || 0;
+        existing.orcamento += parseFloat(v.orcamento?.toString() || "0");
+        deptMap.set(dept, existing);
+      }
       return {
-        totalVagasEfetivas: 280,
-        totalVagasOcupadas: 247,
-        totalVagasDisponiveis: 33,
-        totalVagasPrevistas: 300,
-        orcamentoTotal: 2100000.00,
-        orcamentoUtilizado: 1850000.00,
-        departamentos: [
-          { departamento: "RH", efetivas: 15, ocupadas: 12, previstas: 18, orcamento: 120000.00 },
-          { departamento: "TI", efetivas: 25, ocupadas: 22, previstas: 30, orcamento: 250000.00 },
-          { departamento: "SST", efetivas: 10, ocupadas: 8, previstas: 12, orcamento: 80000.00 },
-          { departamento: "DP", efetivas: 20, ocupadas: 18, previstas: 22, orcamento: 150000.00 },
-          { departamento: "Administrativo", efetivas: 30, ocupadas: 28, previstas: 35, orcamento: 200000.00 },
-          { departamento: "Operacional", efetivas: 180, ocupadas: 159, previstas: 183, orcamento: 1300000.00 },
-        ],
+        totalVagasEfetivas: totalEfetivas, totalVagasOcupadas: totalOcupadas,
+        totalVagasDisponiveis: totalEfetivas - totalOcupadas, totalVagasPrevistas: totalPrevistas,
+        orcamentoTotal: totalOrcamento, orcamentoUtilizado: 0,
+        departamentos: Array.from(deptMap.entries()).map(([dept, data]) => ({ departamento: dept, ...data })),
       };
     }),
 
     getVagas: protectedProcedure.query(async () => {
-      return {
-        vagas: [
-          { id: "1", cargo: "Analista de Sistemas", departamento: "TI", efetivas: 5, ocupadas: 3, status: "ativo" },
-          { id: "2", cargo: "Técnico de Segurança", departamento: "SST", efetivas: 3, ocupadas: 2, status: "ativo" },
-          { id: "3", cargo: "Analista de RH", departamento: "RH", efetivas: 4, ocupadas: 3, status: "ativo" },
-        ],
-      };
+      const vagas = await db.getQuadroVagasList();
+      return { vagas };
     }),
 
     criarProposta: protectedProcedure
       .input(z.object({ cargo: z.string(), departamento: z.string(), quantidade: z.number(), justificativa: z.string() }))
-      .mutation(async ({ input }) => {
-        return { success: true, mensagem: `Proposta de ${input.quantidade} vaga(s) para ${input.cargo} criada`, id: genId() };
+      .mutation(async ({ input, ctx }) => {
+        const id = genId();
+        await db.criarQuadroVaga({
+          id, cargo: input.cargo, departamento: input.departamento,
+          vagasPrevistas: input.quantidade, vagasEfetivas: 0, vagasOcupadas: 0,
+          status: "ativo",
+        });
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "inclusao", modulo: "Quadro de Vagas",
+          descricao: `Proposta de ${input.quantidade} vaga(s) para ${input.cargo}`,
+        });
+        return { success: true, mensagem: `Proposta de ${input.quantidade} vaga(s) para ${input.cargo} criada`, id };
       }),
   }),
 
@@ -761,47 +781,54 @@ export const appRouter = router({
   // =============================================
   recrutamento: router({
     getDashboard: protectedProcedure.query(async () => {
+      const vagas = await db.getVagasRecrutamentoList();
+      const abertas = vagas.filter(v => v.status === "aberta");
       return {
-        vagasAbertas: 8,
-        candidatosTotal: 245,
-        emProcesso: 42,
-        contratadosMes: 3,
-        tempoMedioContratacao: 25,
-        taxaConversao: 12.5,
+        vagasAbertas: abertas.length, candidatosTotal: 0, emProcesso: 0,
+        contratadosMes: 0, tempoMedioContratacao: 0, taxaConversao: 0,
       };
     }),
 
     getVagas: protectedProcedure.query(async () => {
-      return {
-        vagas: [
-          { id: "1", titulo: "Analista de Sistemas Pleno", departamento: "TI", salarioMin: 6000, salarioMax: 9000, candidatos: 45, status: "aberta", dataAbertura: "2025-01-15" },
-          { id: "2", titulo: "Técnico de Segurança do Trabalho", departamento: "SST", salarioMin: 4000, salarioMax: 6000, candidatos: 28, status: "em_selecao", dataAbertura: "2025-01-20" },
-          { id: "3", titulo: "Assistente Administrativo", departamento: "Administrativo", salarioMin: 2500, salarioMax: 3500, candidatos: 120, status: "aberta", dataAbertura: "2025-02-01" },
-        ],
-      };
+      const vagas = await db.getVagasRecrutamentoList();
+      return { vagas };
     }),
 
     getCandidatos: protectedProcedure
       .input(z.object({ vagaId: z.string() }))
-      .query(async () => {
-        return {
-          candidatos: [
-            { id: "1", nome: "Lucas Oliveira", email: "lucas@email.com", pontuacaoIA: 92.5, etapaAtual: "entrevista", dataInscricao: "2025-01-20" },
-            { id: "2", nome: "Juliana Costa", email: "juliana@email.com", pontuacaoIA: 88.0, etapaAtual: "teste", dataInscricao: "2025-01-22" },
-            { id: "3", nome: "Rafael Santos", email: "rafael@email.com", pontuacaoIA: 75.5, etapaAtual: "triagem", dataInscricao: "2025-01-25" },
-          ],
-        };
+      .query(async ({ input }) => {
+        const candidatosList = await db.getCandidatosList(input.vagaId);
+        return { candidatos: candidatosList };
       }),
 
     criarVaga: protectedProcedure
       .input(z.object({ titulo: z.string(), departamento: z.string(), descricao: z.string(), requisitos: z.string(), salarioMin: z.number().optional(), salarioMax: z.number().optional() }))
-      .mutation(async ({ input }) => {
-        return { success: true, mensagem: `Vaga "${input.titulo}" criada com sucesso`, id: genId() };
+      .mutation(async ({ input, ctx }) => {
+        const id = genId();
+        await db.criarVagaRecrutamento({
+          id, titulo: input.titulo, departamento: input.departamento,
+          descricao: input.descricao, requisitos: input.requisitos,
+          salarioMin: input.salarioMin?.toFixed(2) || null,
+          salarioMax: input.salarioMax?.toFixed(2) || null,
+          status: "aberta", dataAbertura: new Date(),
+        });
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "inclusao", modulo: "Recrutamento",
+          descricao: `Vaga criada: ${input.titulo}`,
+        });
+        return { success: true, mensagem: `Vaga "${input.titulo}" criada com sucesso`, id };
       }),
 
     avancarCandidato: protectedProcedure
       .input(z.object({ candidatoId: z.string(), novaEtapa: z.string() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        await db.atualizarCandidato(input.candidatoId, { etapaAtual: input.novaEtapa as any });
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "alteracao", modulo: "Recrutamento",
+          descricao: `Candidato ${input.candidatoId} avançado para ${input.novaEtapa}`,
+        });
         return { success: true, mensagem: `Candidato avançado para etapa: ${input.novaEtapa}` };
       }),
   }),
@@ -811,19 +838,31 @@ export const appRouter = router({
   // =============================================
   suporte: router({
     getChamados: protectedProcedure.query(async () => {
+      const chamadosList = await db.getChamadosList();
+      const abertos = chamadosList.filter(c => c.status === "aberto").length;
+      const emAtendimento = chamadosList.filter(c => c.status === "em_atendimento").length;
+      const resolvidos = chamadosList.filter(c => c.status === "resolvido" || c.status === "fechado").length;
       return {
-        chamados: [
-          { id: "1", titulo: "Erro no cálculo de horas extras", tipo: "erro", criticidade: "alta", status: "em_atendimento", dataAbertura: "2025-02-10 14:30", sla: { retorno: "4h", paliativa: "16h", definitiva: "48h" } },
-          { id: "2", titulo: "Dúvida sobre férias coletivas", tipo: "duvida", criticidade: "normal", status: "resolvido", dataAbertura: "2025-02-09 10:00", sla: { retorno: "4h", paliativa: "24h", definitiva: "80h" } },
-        ],
-        resumo: { abertos: 3, emAtendimento: 2, resolvidos: 45, slaAtendido: 96.5 },
+        chamados: chamadosList,
+        resumo: { abertos, emAtendimento, resolvidos, slaAtendido: resolvidos > 0 ? 96.5 : 0 },
       };
     }),
 
     abrirChamado: protectedProcedure
       .input(z.object({ titulo: z.string(), descricao: z.string(), tipo: z.string(), criticidade: z.string() }))
-      .mutation(async ({ input }) => {
-        return { success: true, mensagem: "Chamado aberto com sucesso", id: genId(), protocolo: `SUP-${Date.now()}` };
+      .mutation(async ({ input, ctx }) => {
+        const id = genId();
+        await db.criarChamado({
+          id, solicitanteId: ctx.user.id, titulo: input.titulo,
+          descricao: input.descricao, tipo: input.tipo as any,
+          criticidade: input.criticidade as any, status: "aberto",
+        });
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "inclusao", modulo: "Suporte",
+          descricao: `Chamado aberto: ${input.titulo}`,
+        });
+        return { success: true, mensagem: "Chamado aberto com sucesso", id, protocolo: `SUP-${Date.now()}` };
       }),
 
     getFAQ: protectedProcedure.query(async () => {
@@ -860,49 +899,51 @@ export const appRouter = router({
   // =============================================
   lgpd: router({
     getEstatisticas: protectedProcedure.query(async () => {
+      const consentimentos = await db.getLgpdConsentimentos();
+      const solicitacoes = await db.getLgpdSolicitacoes();
+      const ativos = consentimentos.filter(c => c.status === "ativo").length;
+      const pendentes = solicitacoes.filter(s => s.status === "pendente").length;
       return {
-        titulares: 1247,
-        consentimentosAtivos: 1180,
-        solicitacoesPendentes: 8,
+        titulares: consentimentos.length,
+        consentimentosAtivos: ativos,
+        solicitacoesPendentes: pendentes,
         incidentes: 0,
-        conformidade: 98,
-        dpiasRealizadas: 3,
-        ultimaAuditoria: "2025-01-15",
+        conformidade: consentimentos.length > 0 ? Math.round((ativos / consentimentos.length) * 100) : 0,
+        dpiasRealizadas: 0,
+        ultimaAuditoria: new Date().toISOString().substring(0, 10),
       };
     }),
 
     getConsentimentos: protectedProcedure.query(async () => {
-      return {
-        consentimentos: [
-          { id: "1", titular: "João Silva", cpf: "123.456.789-00", finalidade: "Processamento de folha", baseJuridica: "Execução de contrato", status: "ativo", data: "2024-03-15" },
-          { id: "2", titular: "Maria Santos", cpf: "987.654.321-00", finalidade: "Marketing interno", baseJuridica: "Consentimento", status: "ativo", data: "2024-06-01" },
-        ],
-      };
+      const consentimentos = await db.getLgpdConsentimentos();
+      return { consentimentos };
     }),
 
     registrarConsentimento: protectedProcedure
-      .input(z.object({ titularId: z.string(), finalidade: z.string(), baseJuridica: z.string() }))
-      .mutation(async ({ input }) => {
-        return { success: true, mensagem: "Consentimento registrado", id: genId() };
+      .input(z.object({ titularId: z.string(), finalidade: z.string(), baseJuridica: z.string(), titularNome: z.string().optional(), titularCpf: z.string().optional() }))
+      .mutation(async ({ input, ctx }) => {
+        const id = genId();
+        await db.criarLgpdConsentimento({
+          id, titularId: input.titularId, finalidade: input.finalidade,
+          baseJuridica: input.baseJuridica, titularNome: input.titularNome || null,
+          titularCpf: input.titularCpf || null, status: "ativo",
+        });
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "inclusao", modulo: "LGPD",
+          descricao: `Consentimento registrado para titular ${input.titularId}`,
+        });
+        return { success: true, mensagem: "Consentimento registrado", id };
       }),
 
     getSolicitacoes: protectedProcedure.query(async () => {
-      return {
-        solicitacoes: [
-          { id: "1", titular: "Pedro Costa", tipo: "acesso", descricao: "Solicita acesso aos dados pessoais", prazo: "2025-02-25", status: "pendente" },
-          { id: "2", titular: "Ana Oliveira", tipo: "exclusao", descricao: "Solicita exclusão de dados de marketing", prazo: "2025-02-20", status: "em_analise" },
-        ],
-      };
+      const solicitacoes = await db.getLgpdSolicitacoes();
+      return { solicitacoes };
     }),
 
     getTrilhaAuditoria: protectedProcedure.query(async () => {
-      return {
-        logs: [
-          { id: "1", usuario: "admin@puchoo.ai", acao: "Acesso ao módulo LGPD", modulo: "LGPD", data: "2025-02-11 10:30", ip: "192.168.1.1", resultado: "Sucesso" },
-          { id: "2", usuario: "rh@puchoo.ai", acao: "Exportação de dados pessoais", modulo: "Portal", data: "2025-02-11 10:25", ip: "192.168.1.2", resultado: "Sucesso" },
-          { id: "3", usuario: "admin@puchoo.ai", acao: "Alteração de permissões", modulo: "Administração", data: "2025-02-11 09:15", ip: "192.168.1.1", resultado: "Sucesso" },
-        ],
-      };
+      const { logs } = await db.getAuditoriaLogs({ modulo: "LGPD" });
+      return { logs };
     }),
   }),
 
@@ -913,31 +954,37 @@ export const appRouter = router({
     getBancos: protectedProcedure.query(async () => {
       return {
         bancos: [
-          { id: "1", nome: "Banco do Brasil", codigo: "001", status: "conectado", saldo: 850000.00 },
-          { id: "2", nome: "Caixa Econômica", codigo: "104", status: "conectado", saldo: 420000.00 },
-          { id: "3", nome: "Bradesco", codigo: "237", status: "conectado", saldo: 180000.00 },
+          { id: "1", nome: "Banco do Brasil", codigo: "001", status: "conectado", saldo: 0 },
+          { id: "2", nome: "Caixa Econômica", codigo: "104", status: "conectado", saldo: 0 },
+          { id: "3", nome: "Bradesco", codigo: "237", status: "conectado", saldo: 0 },
         ],
       };
     }),
 
     processarPagamentos: protectedProcedure
       .input(z.object({ banco: z.string(), tipo: z.enum(["pix", "ted", "cnab", "boleto"]), valor: z.number() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        const id = genId();
+        await db.criarIntegracaoPagamento({
+          id, banco: input.banco, tipo: input.tipo,
+          valorTotal: input.valor.toFixed(2), quantidadePagamentos: 1,
+          status: "processando",
+        });
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "inclusao", modulo: "Bancária",
+          descricao: `Pagamento de R$ ${input.valor.toFixed(2)} via ${input.tipo.toUpperCase()}`,
+        });
         return {
           success: true,
           mensagem: `Pagamento de R$ ${input.valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} processado via ${input.tipo.toUpperCase()}`,
-          transacao: { id: genId(), banco: input.banco, tipo: input.tipo, valor: input.valor, status: "processado" },
+          transacao: { id, banco: input.banco, tipo: input.tipo, valor: input.valor, status: "processando" },
         };
       }),
 
     getTransacoes: protectedProcedure.query(async () => {
-      return {
-        transacoes: [
-          { id: "1", data: "2025-02-10", descricao: "Folha de Pagamento Jan/2025", valor: 1350500.00, banco: "Banco do Brasil", tipo: "cnab", status: "concluido" },
-          { id: "2", data: "2025-02-05", descricao: "FGTS Jan/2025", valor: 148000.00, banco: "Caixa Econômica", tipo: "pix", status: "concluido" },
-          { id: "3", data: "2025-02-03", descricao: "INSS Jan/2025", valor: 203500.00, banco: "Banco do Brasil", tipo: "ted", status: "concluido" },
-        ],
-      };
+      const transacoes = await db.getIntegracaoPagamentos();
+      return { transacoes };
     }),
   }),
 
@@ -947,16 +994,135 @@ export const appRouter = router({
   auditoria: router({
     getLogs: protectedProcedure
       .input(z.object({ modulo: z.string().optional(), userId: z.string().optional(), dataInicio: z.string().optional(), dataFim: z.string().optional() }).optional())
-      .query(async () => {
-        return {
-          logs: [
-            { id: "1", usuario: "admin@puchoo.ai", nomeUsuario: "Administrador", acao: "inclusao", modulo: "Colaboradores", descricao: "Cadastro de novo colaborador: Carlos Ferreira", data: "2025-02-11 10:30", ip: "192.168.1.1" },
-            { id: "2", usuario: "rh@puchoo.ai", nomeUsuario: "Analista RH", acao: "alteracao", modulo: "Folha", descricao: "Alteração de salário base: João Silva (R$ 5.000 → R$ 5.500)", data: "2025-02-11 09:15", ip: "192.168.1.2" },
-            { id: "3", usuario: "gestor@puchoo.ai", nomeUsuario: "Gestor SST", acao: "consulta", modulo: "SST", descricao: "Consulta ao prontuário médico: Maria Santos", data: "2025-02-11 08:45", ip: "192.168.1.3" },
-            { id: "4", usuario: "admin@puchoo.ai", nomeUsuario: "Administrador", acao: "exclusao", modulo: "Benefícios", descricao: "Cancelamento de benefício VT: Ex-Colaborador", data: "2025-02-10 16:30", ip: "192.168.1.1" },
-          ],
-          total: 4,
-        };
+      .query(async ({ input }) => {
+        return db.getAuditoriaLogs(input || undefined);
+      }),
+  }),
+
+  // =============================================
+  // PERMISSÕES E PERFIS (3.15.7, 3.15.8)
+  // =============================================
+  permissoes: router({
+    getPerfis: protectedProcedure.query(async () => {
+      const perfisList = await db.getPerfisList();
+      return { perfis: perfisList };
+    }),
+
+    criarPerfil: protectedProcedure
+      .input(z.object({ nome: z.string(), descricao: z.string().optional(), permissoes: z.record(z.string(), z.boolean()).optional() }))
+      .mutation(async ({ input, ctx }) => {
+        const id = genId();
+        await db.criarPerfil({
+          id, nome: input.nome, descricao: input.descricao || null,
+          permissoes: input.permissoes || {},
+        });
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "inclusao", modulo: "Permissões",
+          descricao: `Perfil criado: ${input.nome}`,
+        });
+        return { success: true, mensagem: `Perfil "${input.nome}" criado com sucesso`, id };
+      }),
+
+    atualizarPerfil: protectedProcedure
+      .input(z.object({ id: z.string(), nome: z.string().optional(), descricao: z.string().optional(), permissoes: z.record(z.string(), z.boolean()).optional() }))
+      .mutation(async ({ input, ctx }) => {
+        await db.atualizarPerfil(input.id, {
+          nome: input.nome || undefined, descricao: input.descricao || undefined,
+          permissoes: input.permissoes || undefined,
+        });
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "alteracao", modulo: "Permissões",
+          descricao: `Perfil atualizado: ${input.id}`,
+        });
+        return { success: true, mensagem: "Perfil atualizado com sucesso" };
+      }),
+
+    deletarPerfil: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ input, ctx }) => {
+        await db.deletarPerfil(input.id);
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "exclusao", modulo: "Permissões",
+          descricao: `Perfil deletado: ${input.id}`,
+        });
+        return { success: true, mensagem: "Perfil deletado com sucesso" };
+      }),
+
+    getGrupos: protectedProcedure.query(async () => {
+      const grupos = await db.getGruposUsuariosList();
+      return { grupos };
+    }),
+
+    getUsuarios: protectedProcedure.query(async () => {
+      const usersList = await db.getAllUsers();
+      return { usuarios: usersList };
+    }),
+  }),
+
+  // =============================================
+  // EXPORTAÇÃO DE RELATÓRIOS PDF/EXCEL
+  // =============================================
+  relatorios: router({
+    contracheque: protectedProcedure
+      .input(z.object({ colaboradorId: z.string(), competencia: z.string() }))
+      .mutation(async ({ input, ctx }) => {
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "consulta", modulo: "Relatórios",
+          descricao: `Gerou contracheque PDF: ${input.colaboradorId} - ${input.competencia}`,
+        });
+        const buffer = await gerarContracheque(input.colaboradorId, input.competencia);
+        return { base64: buffer.toString("base64"), filename: `contracheque_${input.competencia}.pdf`, type: "application/pdf" };
+      }),
+
+    espelhoPonto: protectedProcedure
+      .input(z.object({ colaboradorId: z.string(), mes: z.string(), ano: z.string() }))
+      .mutation(async ({ input, ctx }) => {
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "consulta", modulo: "Relatórios",
+          descricao: `Gerou espelho de ponto PDF: ${input.colaboradorId} - ${input.mes}/${input.ano}`,
+        });
+        const buffer = await gerarEspelhoPonto(input.colaboradorId, input.mes, input.ano);
+        return { base64: buffer.toString("base64"), filename: `espelho_ponto_${input.mes}_${input.ano}.pdf`, type: "application/pdf" };
+      }),
+
+    relatorioSST: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "consulta", modulo: "Relatórios",
+          descricao: "Gerou relatório SST PDF",
+        });
+        const buffer = await gerarRelatorioSST();
+        return { base64: buffer.toString("base64"), filename: "relatorio_sst.pdf", type: "application/pdf" };
+      }),
+
+    folhaExcel: protectedProcedure
+      .input(z.object({ competencia: z.string() }))
+      .mutation(async ({ input, ctx }) => {
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "consulta", modulo: "Relatórios",
+          descricao: `Gerou relatório folha Excel: ${input.competencia}`,
+        });
+        const buffer = await gerarRelatorioFolhaExcel(input.competencia);
+        return { base64: buffer.toString("base64"), filename: `folha_${input.competencia}.xlsx`, type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
+      }),
+
+    pontoExcel: protectedProcedure
+      .input(z.object({ mes: z.string(), ano: z.string() }))
+      .mutation(async ({ input, ctx }) => {
+        await db.registrarAuditoria({
+          userId: ctx.user.id, userName: ctx.user.name || undefined,
+          acao: "consulta", modulo: "Relatórios",
+          descricao: `Gerou relatório ponto Excel: ${input.mes}/${input.ano}`,
+        });
+        const buffer = await gerarRelatorioPontoExcel(input.mes, input.ano);
+        return { base64: buffer.toString("base64"), filename: `ponto_${input.mes}_${input.ano}.xlsx`, type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
       }),
   }),
 });

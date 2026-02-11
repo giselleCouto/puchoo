@@ -53,22 +53,22 @@ export default function Auditoria() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {logs.data?.logs.map((l) => (
-                <div key={l.id} className={`p-4 rounded-lg border ${acaoColor(l.acao)}`}>
+              {logs.data?.logs.map((l: any) => (
+                <div key={l.id} className={`p-4 rounded-lg border ${acaoColor(l.acao || "")}`}>
                   <div className="flex items-start gap-3">
-                    <div className="mt-1">{acaoIcon(l.acao)}</div>
+                    <div className="mt-1">{acaoIcon(l.acao || "")}</div>
                     <div className="flex-1">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="font-medium text-sm">{l.descricao}</p>
-                          <p className="text-xs text-slate-500 mt-1">Usuário: {l.nomeUsuario} ({l.usuario})</p>
+                          <p className="font-medium text-sm">{l.descricao || "N/A"}</p>
+                          <p className="text-xs text-slate-500 mt-1">Usuário: {l.nomeUsuario || "N/A"} ({l.usuarioId || "N/A"})</p>
                         </div>
                         <div className="text-right">
-                          <Badge variant="outline" className="text-xs">{l.modulo}</Badge>
-                          <p className="text-xs text-slate-500 mt-1">{l.data}</p>
+                          <Badge variant="outline" className="text-xs">{l.modulo || "N/A"}</Badge>
+                          <p className="text-xs text-slate-500 mt-1">{new Date(l.dataHora).toLocaleDateString?.() || String(l.dataHora || "")}</p>
                         </div>
                       </div>
-                      <p className="text-xs text-slate-400 mt-1">IP: {l.ip}</p>
+                      <p className="text-xs text-slate-400 mt-1">IP: {l.ip || "N/A"}</p>
                     </div>
                   </div>
                 </div>

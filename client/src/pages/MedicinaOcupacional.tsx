@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
-import { ArrowLeft, Stethoscope, UserCheck, Calendar, AlertTriangle, Baby, FileText } from "lucide-react";
+import { ArrowLeft, Stethoscope, UserCheck, Calendar, AlertTriangle, Baby } from "lucide-react";
 
 export default function MedicinaOcupacional() {
   const prontuarios = trpc.medicina.getProntuarios.useQuery();
@@ -29,7 +29,6 @@ export default function MedicinaOcupacional() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Card>
             <CardContent className="pt-6 text-center">
@@ -74,19 +73,22 @@ export default function MedicinaOcupacional() {
                   <div key={p.id} className="p-4 bg-slate-50 rounded-lg">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <p className="font-medium">{p.colaborador}</p>
-                        <p className="text-xs text-slate-500">Última consulta: {p.ultimaConsulta}</p>
+                        <p className="font-medium">{p.colaboradorId}</p>
+                        <p className="text-xs text-slate-500">Consulta: {p.dataConsulta?.toLocaleDateString?.() || String(p.dataConsulta || "")}</p>
                       </div>
-                      <Badge variant={p.status === "apto" ? "default" : "secondary"}>
-                        {p.status === "apto" ? "Apto" : "Apto c/ Restrição"}
+                      <Badge variant={p.diagnostico ? "default" : "secondary"}>
+                        {p.diagnostico || "N/A"}
                       </Badge>
                     </div>
                     <div className="flex gap-4 text-xs text-slate-600">
-                      <span>Consultas: {p.totalConsultas}</span>
-                      <span>Restrições: {p.restricoes}</span>
+                      <span>Tipo: {p.tipo || "N/A"}</span>
+                      <span>Médico: {p.medicoResponsavel || "N/A"}</span>
                     </div>
                   </div>
                 ))}
+                {(!prontuarios.data?.prontuarios.length) && (
+                  <p className="text-center text-slate-400 py-4">Nenhum prontuário registrado</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -103,19 +105,22 @@ export default function MedicinaOcupacional() {
                   <div key={a.id} className="p-4 bg-slate-50 rounded-lg">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <p className="font-medium">{a.colaborador}</p>
-                        <p className="text-xs text-slate-500">{a.tipo === "doenca" ? "Doença" : a.tipo === "maternidade" ? "Licença Maternidade" : a.tipo}</p>
+                        <p className="font-medium">{a.colaboradorId}</p>
+                        <p className="text-xs text-slate-500">{a.tipo === "doenca" ? "Doença" : a.tipo === "maternidade" ? "Licença Maternidade" : a.tipo || ""}</p>
                       </div>
-                      <Badge variant={a.status === "ativo" ? "destructive" : "default"}>{a.status}</Badge>
+                      <Badge variant={a.status === "ativo" ? "destructive" : "default"}>{a.status || "N/A"}</Badge>
                     </div>
                     <div className="grid grid-cols-3 gap-2 text-xs text-slate-600">
-                      <span>Início: {a.dataInicio}</span>
-                      <span>Retorno: {a.previsaoRetorno}</span>
-                      <span>Dias: {a.diasAfastamento}</span>
+                      <span>Início: {a.dataInicio?.toLocaleDateString?.() || String(a.dataInicio || "")}</span>
+                      <span>Retorno: {a.previsaoRetorno?.toLocaleDateString?.() || String(a.previsaoRetorno || "N/A")}</span>
+                      <span>CID: {a.cid || "N/A"}</span>
                     </div>
                     {a.cid && <p className="text-xs text-slate-500 mt-1">CID: {a.cid}</p>}
                   </div>
                 ))}
+                {(!afastamentos.data?.afastamentos.length) && (
+                  <p className="text-center text-slate-400 py-4">Nenhum afastamento registrado</p>
+                )}
                 <div className="p-3 bg-amber-50 rounded-lg text-center text-sm text-amber-700">
                   Total de afastamentos no ano: <span className="font-bold">{afastamentos.data?.totalAno || 0}</span>
                 </div>
@@ -132,14 +137,17 @@ export default function MedicinaOcupacional() {
               <div className="space-y-3">
                 {gestantes.data?.gestantes.map((g) => (
                   <div key={g.id} className="p-4 bg-pink-50 rounded-lg">
-                    <p className="font-medium">{g.colaborador}</p>
+                    <p className="font-medium">{g.colaboradorId}</p>
                     <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 mt-2">
-                      <span>Previsão parto: {g.previsaoParto}</span>
-                      <span>Semanas: {g.semanasGestacao}</span>
+                      <span>Início: {g.dataInicio?.toLocaleDateString?.() || String(g.dataInicio || "")}</span>
+                      <span>Retorno: {g.previsaoRetorno?.toLocaleDateString?.() || String(g.previsaoRetorno || "N/A")}</span>
                     </div>
-                    <p className="text-xs text-pink-700 mt-1">Restrições: {g.restricoes}</p>
+                    <p className="text-xs text-pink-700 mt-1">Tipo: {g.tipo || "N/A"}</p>
                   </div>
                 ))}
+                {(!gestantes.data?.gestantes.length) && (
+                  <p className="text-center text-slate-400 py-4">Nenhuma gestante registrada</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -154,15 +162,18 @@ export default function MedicinaOcupacional() {
                 {exames.data?.agenda.map((e) => (
                   <div key={e.id} className="p-4 bg-slate-50 rounded-lg flex justify-between items-center">
                     <div>
-                      <p className="font-medium text-sm">{e.colaborador}</p>
-                      <p className="text-xs text-slate-500">{e.tipo} - {e.medico}</p>
+                      <p className="font-medium text-sm">{e.colaboradorId}</p>
+                      <p className="text-xs text-slate-500">{e.tipo || "N/A"} - {e.medicoResponsavel || "N/A"}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-medium">{e.dataAgendada}</p>
-                      <Badge variant="outline" className="text-xs">{e.status}</Badge>
+                      <p className="text-sm font-medium">{e.dataExame?.toLocaleDateString?.() || String(e.dataExame || "")}</p>
+                      <Badge variant="outline" className="text-xs">{e.resultado || "pendente"}</Badge>
                     </div>
                   </div>
                 ))}
+                {(!exames.data?.agenda.length) && (
+                  <p className="text-center text-slate-400 py-4">Nenhum exame agendado</p>
+                )}
                 <div className="p-3 bg-red-50 rounded-lg text-center text-sm text-red-700">
                   Exames vencidos: <span className="font-bold">{exames.data?.vencidos || 0}</span> | Próximos 30 dias: <span className="font-bold">{exames.data?.proximos30Dias || 0}</span>
                 </div>

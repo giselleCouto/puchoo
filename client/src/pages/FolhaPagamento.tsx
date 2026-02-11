@@ -51,7 +51,7 @@ export default function FolhaPagamento() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-500">Total Bruto</p>
-                  <p className="text-2xl font-bold text-emerald-600">{resumo.data ? fmt(resumo.data.totalBruto) : "..."}</p>
+                  <p className="text-2xl font-bold text-emerald-600">{resumo.data ? fmt(parseFloat(resumo.data.totalBruto?.toString() || "0")) : "..."}</p>
                 </div>
                 <TrendingUp className="w-8 h-8 text-emerald-500" />
               </div>
@@ -62,7 +62,7 @@ export default function FolhaPagamento() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-500">Total Líquido</p>
-                  <p className="text-2xl font-bold text-blue-600">{resumo.data ? fmt(resumo.data.totalLiquido) : "..."}</p>
+                  <p className="text-2xl font-bold text-blue-600">{resumo.data ? fmt(parseFloat(resumo.data.totalLiquido?.toString() || "0")) : "..."}</p>
                 </div>
                 <DollarSign className="w-8 h-8 text-blue-500" />
               </div>
@@ -73,7 +73,7 @@ export default function FolhaPagamento() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-500">Total Descontos</p>
-                  <p className="text-2xl font-bold text-red-600">{resumo.data ? fmt(resumo.data.totalDescontos) : "..."}</p>
+                  <p className="text-2xl font-bold text-red-600">{resumo.data ? fmt(parseFloat(resumo.data.totalDescontos?.toString() || "0")) : "..."}</p>
                 </div>
                 <Calculator className="w-8 h-8 text-red-500" />
               </div>
@@ -92,7 +92,7 @@ export default function FolhaPagamento() {
               {resumo.data?.encargos && Object.entries(resumo.data.encargos).map(([key, val]) => (
                 <div key={key} className="bg-slate-50 rounded-lg p-4 text-center">
                   <p className="text-xs text-slate-500 uppercase">{key}</p>
-                  <p className="text-lg font-bold text-slate-800">{fmt(val as number)}</p>
+                  <p className="text-lg font-bold text-slate-800">{fmt(parseFloat(val?.toString() || "0"))}</p>
                 </div>
               ))}
             </div>
@@ -111,12 +111,12 @@ export default function FolhaPagamento() {
                 {colaboradores.data?.colaboradores.map((c) => (
                   <div key={c.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <div>
-                      <p className="font-medium text-sm">{c.nome}</p>
-                      <p className="text-xs text-slate-500">{c.cargo} - {c.departamento}</p>
+                      <p className="font-medium text-sm">{c.nome || "N/A"}</p>
+                      <p className="text-xs text-slate-500">{c.cargo || "N/A"} - {c.departamento || "N/A"}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-sm">{fmt(c.salarioBase)}</p>
-                      <Badge variant="outline" className="text-xs">{c.tipoContrato.toUpperCase()}</Badge>
+                      <p className="font-semibold text-sm">{fmt(parseFloat(c.salarioBase?.toString() || "0"))}</p>
+                      <Badge variant="outline" className="text-xs">{(c.tipoContrato || "N/A").toUpperCase()}</Badge>
                     </div>
                   </div>
                 ))}
@@ -135,10 +135,10 @@ export default function FolhaPagamento() {
                   {ferias.data?.ferias.map((f) => (
                     <div key={f.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                       <div>
-                        <p className="font-medium text-sm">{f.colaborador}</p>
-                        <p className="text-xs text-slate-500">{f.dataInicio} a {f.dataFim} ({f.dias} dias)</p>
+                        <p className="font-medium text-sm">{f.colaboradorId || "N/A"}</p>
+                        <p className="text-xs text-slate-500">{new Date(f.dataInicio).toLocaleDateString?.() || String(f.dataInicio || "")} a {new Date(f.dataFim).toLocaleDateString?.() || String(f.dataFim || "")} ({f.dias} dias)</p>
                       </div>
-                      <Badge variant={f.status === "aprovada" ? "default" : "secondary"}>{f.status}</Badge>
+                      <Badge variant={f.status === "aprovada" ? "default" : "secondary"}>{f.status || "N/A"}</Badge>
                     </div>
                   ))}
                 </div>
@@ -152,10 +152,10 @@ export default function FolhaPagamento() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {ferias.data.alertas.map((a, i) => (
+                    {(ferias.data.alertas as any[]).map((a: any, i: number) => (
                       <div key={i} className="p-3 bg-white rounded-lg border border-amber-200">
-                        <p className="font-medium text-sm text-amber-900">{a.colaborador}</p>
-                        <p className="text-xs text-amber-700">{a.mensagem}</p>
+                        <p className="font-medium text-sm text-amber-900">{a.colaboradorId || "N/A"}</p>
+                        <p className="text-xs text-amber-700">{a.mensagem || "N/A"}</p>
                       </div>
                     ))}
                   </div>
@@ -176,8 +176,8 @@ export default function FolhaPagamento() {
                 <Button key={r.id} variant="outline" className="justify-start h-auto py-3">
                   <FileText className="w-4 h-4 mr-2 text-blue-500" />
                   <div className="text-left">
-                    <p className="text-sm font-medium">{r.nome}</p>
-                    <p className="text-xs text-slate-500">{r.competencia}</p>
+                    <p className="text-sm font-medium">{r.nome || "N/A"}</p>
+                    <p className="text-xs text-slate-500">{r.competencia || "N/A"}</p>
                   </div>
                 </Button>
               ))}

@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
-import { ArrowLeft, Headphones, Ticket, HelpCircle, CheckCircle2, Clock, AlertTriangle, ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowLeft, Headphones, Ticket, HelpCircle, CheckCircle2, Clock, ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
 export default function Suporte() {
@@ -22,7 +22,7 @@ export default function Suporte() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-900">Suporte ao Cliente</h1>
-              <p className="text-sm text-slate-500">Chamados, SLA, FAQ e base de conhecimento</p>
+              <p className="text-sm text-slate-500">Chamados, FAQ e base de conhecimento</p>
             </div>
           </div>
         </div>
@@ -30,7 +30,7 @@ export default function Suporte() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Card>
             <CardContent className="pt-6 text-center">
               <Ticket className="w-8 h-8 mx-auto text-cyan-500 mb-2" />
@@ -52,13 +52,6 @@ export default function Suporte() {
               <p className="text-2xl font-bold text-emerald-600">{chamados.data?.resumo.resolvidos || 0}</p>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="pt-6 text-center">
-              <AlertTriangle className="w-8 h-8 mx-auto text-blue-500 mb-2" />
-              <p className="text-sm text-slate-500">SLA Atendido</p>
-              <p className="text-2xl font-bold text-blue-600">{chamados.data?.resumo.slaAtendido || 0}%</p>
-            </CardContent>
-          </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -66,34 +59,19 @@ export default function Suporte() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><Ticket className="w-5 h-5" />Chamados Recentes</CardTitle>
-              <CardDescription>SLA: Retorno 4h | Paliativa 16-24h | Definitiva 48-80h</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {chamados.data?.chamados.map((c) => (
+                {chamados.data?.chamados.map((c: any) => (
                   <div key={c.id} className={`p-4 rounded-lg border ${c.criticidade === "alta" ? "bg-red-50 border-red-200" : "bg-slate-50 border-slate-200"}`}>
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <p className="font-medium text-sm">{c.titulo}</p>
-                        <p className="text-xs text-slate-500">Aberto em: {c.dataAbertura}</p>
+                        <p className="font-medium text-sm">{c.titulo || "N/A"}</p>
+                        <p className="text-xs text-slate-500">Aberto em: {new Date(c.dataHora).toLocaleDateString?.() || String(c.dataHora || "")}</p>
                       </div>
                       <div className="flex gap-2">
-                        <Badge variant={c.criticidade === "alta" ? "destructive" : "outline"}>{c.criticidade}</Badge>
-                        <Badge variant={c.status === "resolvido" ? "default" : "secondary"}>{c.status.replace("_", " ")}</Badge>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 text-xs mt-2">
-                      <div className="bg-white rounded p-2 text-center">
-                        <p className="text-slate-500">Retorno</p>
-                        <p className="font-medium">{c.sla.retorno}</p>
-                      </div>
-                      <div className="bg-white rounded p-2 text-center">
-                        <p className="text-slate-500">Paliativa</p>
-                        <p className="font-medium">{c.sla.paliativa}</p>
-                      </div>
-                      <div className="bg-white rounded p-2 text-center">
-                        <p className="text-slate-500">Definitiva</p>
-                        <p className="font-medium">{c.sla.definitiva}</p>
+                        <Badge variant={c.criticidade === "alta" ? "destructive" : "outline"}>{c.criticidade || "N/A"}</Badge>
+                        <Badge variant={c.status === "resolvido" ? "default" : "secondary"}>{(c.status || "").replace("_", " ")}</Badge>
                       </div>
                     </div>
                   </div>
@@ -110,11 +88,11 @@ export default function Suporte() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {faq.data?.categorias.map((cat, ci) => (
+                {faq.data?.categorias.map((cat: any, ci: number) => (
                   <div key={ci}>
-                    <h4 className="font-medium text-sm text-slate-700 mb-2">{cat.categoria}</h4>
+                    <h4 className="font-medium text-sm text-slate-700 mb-2">{cat.categoria || "N/A"}</h4>
                     <div className="space-y-1">
-                      {cat.perguntas.map((p, pi) => {
+                      {cat.perguntas.map((p: any, pi: number) => {
                         const key = `${ci}-${pi}`;
                         const isExpanded = expandedFaq === key;
                         return (
@@ -123,11 +101,11 @@ export default function Suporte() {
                               className="w-full flex items-center justify-between p-3 text-left text-sm hover:bg-slate-100 transition-colors"
                               onClick={() => setExpandedFaq(isExpanded ? null : key)}
                             >
-                              <span className="font-medium">{p.pergunta}</span>
+                              <span className="font-medium">{p.pergunta || "N/A"}</span>
                               {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                             </button>
                             {isExpanded && (
-                              <div className="px-3 pb-3 text-sm text-slate-600">{p.resposta}</div>
+                              <div className="px-3 pb-3 text-sm text-slate-600">{p.resposta || "N/A"}</div>
                             )}
                           </div>
                         );

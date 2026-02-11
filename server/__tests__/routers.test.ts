@@ -126,6 +126,40 @@ describe("App Router", () => {
   });
 });
 
+describe("Relatorios", () => {
+  it("should export all report generation functions", async () => {
+    const relatorios = await import("../relatorios");
+    expect(relatorios.gerarContracheque).toBeDefined();
+    expect(relatorios.gerarEspelhoPonto).toBeDefined();
+    expect(relatorios.gerarRelatorioSST).toBeDefined();
+    expect(relatorios.gerarRelatorioFolhaExcel).toBeDefined();
+    expect(relatorios.gerarRelatorioPontoExcel).toBeDefined();
+  });
+
+  it("should have report routes in the router", async () => {
+    const { appRouter } = await import("../routers");
+    const procedures = appRouter._def.procedures;
+    expect(procedures).toHaveProperty("relatorios.contracheque");
+    expect(procedures).toHaveProperty("relatorios.espelhoPonto");
+    expect(procedures).toHaveProperty("relatorios.relatorioSST");
+    expect(procedures).toHaveProperty("relatorios.folhaExcel");
+    expect(procedures).toHaveProperty("relatorios.pontoExcel");
+  });
+});
+
+describe("Permissoes", () => {
+  it("should have permission routes in the router", async () => {
+    const { appRouter } = await import("../routers");
+    const procedures = appRouter._def.procedures;
+    expect(procedures).toHaveProperty("permissoes.getPerfis");
+    expect(procedures).toHaveProperty("permissoes.criarPerfil");
+    expect(procedures).toHaveProperty("permissoes.atualizarPerfil");
+    expect(procedures).toHaveProperty("permissoes.deletarPerfil");
+    expect(procedures).toHaveProperty("permissoes.getGrupos");
+    expect(procedures).toHaveProperty("permissoes.getUsuarios");
+  });
+});
+
 describe("Schema", () => {
   it("should export all required tables", async () => {
     const schema = await import("../../drizzle/schema");

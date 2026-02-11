@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
-import { ArrowLeft, Target, Star, TrendingUp, Users, MessageSquare, BookOpen, BarChart3 } from "lucide-react";
+import { ArrowLeft, Target, Star, BookOpen, BarChart3, MessageSquare } from "lucide-react";
 
 export default function Desempenho() {
   const dashboard = trpc.desempenho.getDashboard.useQuery();
@@ -11,6 +11,8 @@ export default function Desempenho() {
   const okrs = trpc.desempenho.getOKRs.useQuery();
   const pdis = trpc.desempenho.getPDIs.useQuery();
   const feedbacks = trpc.desempenho.getFeedbacks.useQuery();
+
+  const mediaGeral = parseFloat(dashboard.data?.mediaGeral?.toString() || "0");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -47,7 +49,7 @@ export default function Desempenho() {
           <Card>
             <CardContent className="pt-6 text-center">
               <p className="text-sm text-slate-500">Média Geral</p>
-              <p className="text-2xl font-bold text-emerald-600">{dashboard.data?.mediaGeral || 0}/5.0</p>
+              <p className="text-2xl font-bold text-emerald-600">{mediaGeral.toFixed(1)}/5.0</p>
             </CardContent>
           </Card>
           <Card>
@@ -100,25 +102,28 @@ export default function Desempenho() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {avaliacoes.data?.avaliacoes.map((a) => (
-                  <div key={a.id} className="p-3 bg-slate-50 rounded-lg">
-                    <div className="flex justify-between items-start mb-1">
-                      <div>
-                        <p className="font-medium text-sm">{a.colaborador}</p>
-                        <p className="text-xs text-slate-500">Avaliador: {a.avaliador} | Tipo: {a.tipo}</p>
+                {avaliacoes.data?.avaliacoes.map((a) => {
+                  const notaFinal = parseFloat(a.notaFinal?.toString() || "0");
+                  return (
+                    <div key={a.id} className="p-3 bg-slate-50 rounded-lg">
+                      <div className="flex justify-between items-start mb-1">
+                        <div>
+                          <p className="font-medium text-sm">{a.colaboradorId || "N/A"}</p>
+                          <p className="text-xs text-slate-500">Avaliador: {a.avaliadorId || "N/A"} | Tipo: {a.tipo || "N/A"}</p>
+                        </div>
+                        <Badge variant={a.status === "concluida" ? "default" : "secondary"}>{a.status || "N/A"}</Badge>
                       </div>
-                      <Badge variant={a.status === "concluida" ? "default" : "secondary"}>{a.status}</Badge>
+                      {notaFinal > 0 && (
+                        <div className="flex items-center gap-1 mt-1">
+                          {Array.from({ length: 5 }, (_, i) => (
+                            <Star key={i} className={`w-3 h-3 ${i < Math.round(notaFinal) ? "text-amber-400 fill-amber-400" : "text-slate-300"}`} />
+                          ))}
+                          <span className="text-xs text-slate-600 ml-1">{notaFinal.toFixed(1)}</span>
+                        </div>
+                      )}
                     </div>
-                    {a.notaFinal > 0 && (
-                      <div className="flex items-center gap-1 mt-1">
-                        {Array.from({ length: 5 }, (_, i) => (
-                          <Star key={i} className={`w-3 h-3 ${i < Math.round(a.notaFinal) ? "text-amber-400 fill-amber-400" : "text-slate-300"}`} />
-                        ))}
-                        <span className="text-xs text-slate-600 ml-1">{a.notaFinal}</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -131,21 +136,24 @@ export default function Desempenho() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {okrs.data?.okrs.map((o) => (
-                  <div key={o.id} className="p-3 bg-slate-50 rounded-lg">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <p className="font-medium text-sm">{o.colaborador}</p>
-                        <p className="text-xs text-slate-600">{o.objetivo}</p>
-                        <p className="text-xs text-slate-500">KR: {o.resultadoChave}</p>
+                {okrs.data?.okrs.map((o) => {
+                  const percentual = parseFloat(o.percentual?.toString() || "0");
+                  return (
+                    <div key={o.id} className="p-3 bg-slate-50 rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="font-medium text-sm">{o.colaboradorId || "N/A"}</p>
+                          <p className="text-xs text-slate-600">{o.objetivo || "N/A"}</p>
+                          <p className="text-xs text-slate-500">KR: {o.resultadoChave || "N/A"}</p>
+                        </div>
+                        <Badge variant={o.status === "concluida" ? "default" : "secondary"}>{percentual}%</Badge>
                       </div>
-                      <Badge variant={o.status === "concluida" ? "default" : "secondary"}>{o.percentual}%</Badge>
+                      <div className="w-full bg-slate-200 rounded-full h-2">
+                        <div className={`h-2 rounded-full ${percentual >= 70 ? "bg-emerald-500" : percentual >= 40 ? "bg-amber-500" : "bg-red-500"}`} style={{ width: `${percentual}%` }} />
+                      </div>
                     </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2">
-                      <div className={`h-2 rounded-full ${o.percentual >= 70 ? "bg-emerald-500" : o.percentual >= 40 ? "bg-amber-500" : "bg-red-500"}`} style={{ width: `${o.percentual}%` }} />
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -159,12 +167,12 @@ export default function Desempenho() {
               <div className="space-y-3">
                 {pdis.data?.pdis.map((p) => (
                   <div key={p.id} className="p-3 bg-slate-50 rounded-lg">
-                    <p className="font-medium text-sm">{p.colaborador}</p>
-                    <p className="text-xs text-slate-600">Competência: {p.competencia}</p>
-                    <p className="text-xs text-slate-500">Ação: {p.acao}</p>
+                    <p className="font-medium text-sm">{p.colaboradorId || "N/A"}</p>
+                    <p className="text-xs text-slate-600">Competência: {p.competencia || "N/A"}</p>
+                    <p className="text-xs text-slate-500">Ação: {p.acaoDesenvolvimento || "N/A"}</p>
                     <div className="flex justify-between items-center mt-2">
-                      <span className="text-xs text-slate-500">Prazo: {p.prazo}</span>
-                      <Badge variant={p.status === "em_andamento" ? "default" : "secondary"}>{p.status}</Badge>
+                      <span className="text-xs text-slate-500">Prazo: {new Date(p.prazo || "").toLocaleDateString?.() || String(p.prazo || "")}</span>
+                      <Badge variant={p.status === "em_andamento" ? "default" : "secondary"}>{p.status || "N/A"}</Badge>
                     </div>
                   </div>
                 ))}
@@ -183,11 +191,11 @@ export default function Desempenho() {
                 {feedbacks.data?.feedbacks.map((f) => (
                   <div key={f.id} className={`p-3 rounded-lg ${f.tipo === "elogio" ? "bg-emerald-50" : "bg-amber-50"}`}>
                     <div className="flex justify-between items-start mb-1">
-                      <p className="text-xs text-slate-500">{f.de} → {f.para}</p>
-                      <Badge variant={f.tipo === "elogio" ? "default" : "secondary"}>{f.tipo}</Badge>
+                      <p className="text-xs text-slate-500">{(f.deUserId || "N/A")} → {(f.paraUserId || "N/A")}</p>
+                      <Badge variant={f.tipo === "elogio" ? "default" : "secondary"}>{f.tipo || "N/A"}</Badge>
                     </div>
-                    <p className="text-sm">{f.mensagem}</p>
-                    <p className="text-xs text-slate-400 mt-1">{f.data}</p>
+                    <p className="text-sm">{f.mensagem || "N/A"}</p>
+                    <p className="text-xs text-slate-400 mt-1">{f.createdAt?.toLocaleDateString?.() || String(f.createdAt || "")}</p>
                   </div>
                 ))}
               </div>

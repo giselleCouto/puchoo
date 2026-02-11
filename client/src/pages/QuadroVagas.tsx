@@ -3,13 +3,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
-import { ArrowLeft, LayoutGrid, Users, DollarSign, Building2, TrendingUp } from "lucide-react";
+import { ArrowLeft, LayoutGrid, Users, Building2 } from "lucide-react";
 
 export default function QuadroVagas() {
   const resumo = trpc.quadroVagas.getResumo.useQuery();
   const vagas = trpc.quadroVagas.getVagas.useQuery();
 
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+  const orcamentoUtilizado = parseFloat(resumo.data?.orcamentoUtilizado?.toString() || "0");
+  const orcamentoTotal = parseFloat(resumo.data?.orcamentoTotal?.toString() || "0");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -52,8 +55,8 @@ export default function QuadroVagas() {
           <Card>
             <CardContent className="pt-6 text-center">
               <p className="text-sm text-slate-500">Orçamento Utilizado</p>
-              <p className="text-xl font-bold text-amber-600">{resumo.data ? fmt(resumo.data.orcamentoUtilizado) : "..."}</p>
-              <p className="text-xs text-slate-500">de {resumo.data ? fmt(resumo.data.orcamentoTotal) : "..."}</p>
+              <p className="text-xl font-bold text-amber-600">{resumo.data ? fmt(orcamentoUtilizado) : "..."}</p>
+              <p className="text-xs text-slate-500">de {resumo.data ? fmt(orcamentoTotal) : "..."}</p>
             </CardContent>
           </Card>
         </div>
@@ -81,14 +84,15 @@ export default function QuadroVagas() {
                 <tbody>
                   {resumo.data?.departamentos.map((d, i) => {
                     const ocupacao = d.efetivas > 0 ? Math.round((d.ocupadas / d.efetivas) * 100) : 0;
+                    const orcamento = parseFloat(d.orcamento?.toString() || "0");
                     return (
                       <tr key={i} className="border-b border-slate-100 hover:bg-slate-50">
-                        <td className="py-3 px-4 font-medium">{d.departamento}</td>
+                        <td className="py-3 px-4 font-medium">{d.departamento || "N/A"}</td>
                         <td className="py-3 px-4 text-center">{d.efetivas}</td>
                         <td className="py-3 px-4 text-center text-emerald-600 font-medium">{d.ocupadas}</td>
                         <td className="py-3 px-4 text-center text-blue-600 font-medium">{d.efetivas - d.ocupadas}</td>
                         <td className="py-3 px-4 text-center text-slate-500">{d.previstas}</td>
-                        <td className="py-3 px-4 text-right">{fmt(d.orcamento)}</td>
+                        <td className="py-3 px-4 text-right">{fmt(orcamento)}</td>
                         <td className="py-3 px-4 text-center">
                           <div className="flex items-center gap-2 justify-center">
                             <div className="w-16 bg-slate-200 rounded-full h-2">
@@ -116,23 +120,23 @@ export default function QuadroVagas() {
               {vagas.data?.vagas.map((v) => (
                 <div key={v.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
                   <div>
-                    <p className="font-medium">{v.cargo}</p>
-                    <p className="text-sm text-slate-500">{v.departamento}</p>
+                    <p className="font-medium">{v.cargo || "N/A"}</p>
+                    <p className="text-sm text-slate-500">{v.departamento || "N/A"}</p>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-center">
                       <p className="text-xs text-slate-500">Efetivas</p>
-                      <p className="font-bold">{v.efetivas}</p>
+                      <p className="font-bold">{v.vagasEfetivas || 0}</p>
                     </div>
                     <div className="text-center">
                       <p className="text-xs text-slate-500">Ocupadas</p>
-                      <p className="font-bold text-emerald-600">{v.ocupadas}</p>
+                      <p className="font-bold text-emerald-600">{v.vagasOcupadas || 0}</p>
                     </div>
                     <div className="text-center">
                       <p className="text-xs text-slate-500">Disponíveis</p>
-                      <p className="font-bold text-blue-600">{v.efetivas - v.ocupadas}</p>
+                      <p className="font-bold text-blue-600">{(v.vagasEfetivas || 0) - (v.vagasOcupadas || 0)}</p>
                     </div>
-                    <Badge variant="outline">{v.status}</Badge>
+                    <Badge variant="outline">{v.status || "N/A"}</Badge>
                   </div>
                 </div>
               ))}

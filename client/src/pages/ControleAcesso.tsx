@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +10,8 @@ export default function ControleAcesso() {
   const dashboard = trpc.acesso.getDashboard.useQuery();
   const visitantes = trpc.acesso.getVisitantes.useQuery();
   const logs = trpc.acesso.getLogAcessos.useQuery();
+
+  const dispositivos: any[] = dashboard.data?.dispositivos || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -68,14 +71,13 @@ export default function ControleAcesso() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {dashboard.data?.dispositivos.map((d) => (
+              {dispositivos.map((d: any) => (
                 <div key={d.id} className={`p-4 rounded-lg border ${d.status === "online" ? "bg-emerald-50 border-emerald-200" : "bg-red-50 border-red-200"}`}>
                   <div className="flex justify-between items-start mb-2">
-                    <p className="font-medium text-sm">{d.nome}</p>
-                    <Badge variant={d.status === "online" ? "default" : "destructive"}>{d.status}</Badge>
+                    <p className="font-medium text-sm">{d.nome || "N/A"}</p>
+                    <Badge variant={d.status === "online" ? "default" : "destructive"}>{d.status || "offline"}</Badge>
                   </div>
-                  <p className="text-xs text-slate-500">{d.tipo.replace("_", " ")}</p>
-                  <p className="text-xs text-slate-600 mt-1">Acessos hoje: <span className="font-bold">{d.acessosHoje}</span></p>
+                  <p className="text-xs text-slate-500">{(d.tipo || "").replace("_", " ")}</p>
                 </div>
               ))}
             </div>
@@ -92,14 +94,14 @@ export default function ControleAcesso() {
             <CardContent>
               <h4 className="text-sm font-medium text-slate-700 mb-3">Presentes Agora</h4>
               <div className="space-y-3 mb-6">
-                {visitantes.data?.visitantes.filter(v => v.status === "presente").map((v) => (
+                {(visitantes.data?.visitantes || []).filter((v: any) => v.status === "presente").map((v: any) => (
                   <div key={v.id} className="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-medium text-sm">{v.nome}</p>
-                        <p className="text-xs text-slate-500">{v.empresa}</p>
-                        <p className="text-xs text-slate-600">Motivo: {v.motivoVisita}</p>
-                        <p className="text-xs text-slate-600">Visitando: {v.pessoaVisitada}</p>
+                        <p className="font-medium text-sm">{v.nome || "N/A"}</p>
+                        <p className="text-xs text-slate-500">{v.empresa || ""}</p>
+                        <p className="text-xs text-slate-600">Motivo: {v.motivoVisita || "N/A"}</p>
+                        <p className="text-xs text-slate-600">Visitando: {v.pessoaVisitada || "N/A"}</p>
                       </div>
                       <Badge>Presente</Badge>
                     </div>
@@ -109,13 +111,13 @@ export default function ControleAcesso() {
 
               <h4 className="text-sm font-medium text-slate-700 mb-3">Agendados</h4>
               <div className="space-y-3">
-                {visitantes.data?.agendados.map((v) => (
+                {(visitantes.data?.agendados || []).map((v: any) => (
                   <div key={v.id} className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-medium text-sm">{v.nome}</p>
-                        <p className="text-xs text-slate-500">{v.empresa}</p>
-                        <p className="text-xs text-slate-600">{v.dataAgendada}</p>
+                        <p className="font-medium text-sm">{v.nome || "N/A"}</p>
+                        <p className="text-xs text-slate-500">{v.empresa || ""}</p>
+                        <p className="text-xs text-slate-600">{new Date(v.dataHora).toLocaleDateString?.() || String(v.dataHora || "")}</p>
                       </div>
                       <Badge variant="secondary">Agendado</Badge>
                     </div>
@@ -133,17 +135,17 @@ export default function ControleAcesso() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {logs.data?.logs.map((l) => (
+                {(logs.data?.logs || []).map((l: any) => (
                   <div key={l.id} className={`p-3 rounded-lg flex items-center justify-between ${l.autorizado ? "bg-slate-50" : "bg-red-50"}`}>
                     <div className="flex items-center gap-3">
                       <div className={`w-2 h-2 rounded-full ${l.autorizado ? "bg-emerald-500" : "bg-red-500"}`} />
                       <div>
-                        <p className="font-medium text-sm">{l.pessoa}</p>
-                        <p className="text-xs text-slate-500">{l.dispositivo} | {l.metodo}</p>
+                        <p className="font-medium text-sm">{l.pessoaId || "N/A"}</p>
+                        <p className="text-xs text-slate-500">{l.dispositivo || "N/A"} | {l.metodoAcesso || "N/A"}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-medium">{l.horario}</p>
+                      <p className="text-xs font-medium">{new Date(l.dataHora).toLocaleString?.() || String(l.dataHora || "")}</p>
                       <Badge variant={l.autorizado ? "outline" : "destructive"} className="text-xs">
                         {l.direcao === "entrada" ? "Entrada" : "Saída"}
                       </Badge>
@@ -158,3 +160,4 @@ export default function ControleAcesso() {
     </div>
   );
 }
+

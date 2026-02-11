@@ -20,6 +20,8 @@ import QuadroVagas from "./pages/QuadroVagas";
 import Recrutamento from "./pages/Recrutamento";
 import Suporte from "./pages/Suporte";
 import Auditoria from "./pages/Auditoria";
+import AdminPermissoes from "./pages/AdminPermissoes";
+import Relatorios from "./pages/Relatorios";
 
 function Router() {
   return (
@@ -55,6 +57,10 @@ function Router() {
       <Route path="/lgpd" component={LGPDExpandido} />
       {/* Auditoria */}
       <Route path="/auditoria" component={Auditoria} />
+      {/* 3.15 Painel Administrativo */}
+      <Route path="/admin" component={AdminPermissoes} />
+      {/* Relatórios PDF/Excel */}
+      <Route path="/relatorios" component={Relatorios} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

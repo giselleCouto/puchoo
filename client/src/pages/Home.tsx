@@ -6,7 +6,7 @@ import { Link } from "wouter";
 import {
   DollarSign, FileText, Clock, Gift, Shield, Stethoscope,
   Target, Users, ShieldCheck, LayoutGrid, UserSearch,
-  Headphones, Banknote, Lock, ScrollText
+  Headphones, Banknote, Lock, ScrollText, FileDown
 } from "lucide-react";
 
 const moduleCategories = [
@@ -106,6 +106,10 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs text-slate-500 hidden sm:inline">15 módulos ativos</span>
+            <Link href="/relatorios"><Button variant="outline" size="sm" className="gap-1 text-orange-600 border-orange-200 hover:bg-orange-50"><FileDown className="w-3.5 h-3.5" />Relatórios</Button></Link>
+            {user?.role === "admin" && (
+              <Link href="/admin"><Button variant="outline" size="sm" className="gap-1 text-indigo-600 border-indigo-200 hover:bg-indigo-50"><Shield className="w-3.5 h-3.5" />Admin</Button></Link>
+            )}
             <Button onClick={logout} variant="outline" size="sm">Sair</Button>
           </div>
         </div>

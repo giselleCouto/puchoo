@@ -38,6 +38,20 @@
 - [x] Implementar barra de navegação horizontal persistente (header sticky)
 
 ## Testes
-- [x] Vitest: 4 testes passando (routers + schema)
+- [x] Vitest: 11 testes passando (routers + schema + relatórios + permissões + supabase)
 - [x] Build de produção compilando sem erros
 - [x] Servidor de desenvolvimento rodando
+
+## Fase Nova: Integração GitHub + Supabase + Permissões + PDF
+- [x] Conectar ao repositório GitHub giselleCouto/puchoo
+- [x] Configurar Supabase (Project URL, Anon Key)
+- [x] Substituir dados mockados da Folha de Pagamento por queries Drizzle ORM reais
+- [x] Substituir dados mockados do Ponto por queries Drizzle ORM reais
+- [x] Substituir dados mockados dos demais módulos por queries reais
+- [x] Implementar controle de permissões granular (admin, RH, gestor, colaborador)
+- [x] Criar painel administrativo para gerenciar perfis de acesso
+- [x] Adicionar exportação de contracheques em PDF
+- [x] Adicionar exportação de espelhos de ponto em PDF
+- [x] Adicionar exportação de relatórios SST em PDF
+- [x] Adicionar exportação de relatórios em Excel
+- [ ] Push do código para GitHub (pendente)
