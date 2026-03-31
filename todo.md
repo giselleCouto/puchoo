@@ -86,3 +86,8 @@
 - [x] Registrar rota /sobre no App.tsx
 - [x] Adicionar link no Home.tsx (rodapé "Conheça a Nokahi")
 - [x] Verificar build e push para GitHub
+
+## Seção de Depoimentos de Clientes
+- [x] Adicionar seção de depoimentos na página SobreNokahi.tsx
+- [x] Design com cards de depoimentos, iniciais, nomes, cargos, empresas e estrelas
+- [x] Verificar build e push para GitHub

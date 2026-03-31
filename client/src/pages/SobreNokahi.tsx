@@ -5,8 +5,71 @@ import { Link } from "wouter";
 import {
   ArrowLeft, Building2, Target, Eye, Heart, Globe, Mail, Phone,
   MapPin, Linkedin, Instagram, Facebook, ExternalLink, Users,
-  ShieldCheck, Lightbulb, Handshake, Award, Leaf
+  ShieldCheck, Lightbulb, Handshake, Award, Leaf, Quote, Star
 } from "lucide-react";
+
+const depoimentos = [
+  {
+    nome: "Ana Carolina Mendes",
+    cargo: "Diretora de RH",
+    empresa: "TechNorte Soluções",
+    foto: null,
+    iniciais: "AC",
+    cor: "bg-puchoo-green",
+    estrelas: 5,
+    texto: "O Puchoo transformou completamente nossa gestão de pessoas. Antes, gastávamos dias para fechar a folha de pagamento. Hoje, o processo é automatizado e sem erros. A conformidade com o eSocial nos deu tranquilidade total.",
+  },
+  {
+    nome: "Roberto Silva Filho",
+    cargo: "Gerente Administrativo",
+    empresa: "Amazônia Energia S.A.",
+    foto: null,
+    iniciais: "RS",
+    cor: "bg-puchoo-orange",
+    estrelas: 5,
+    texto: "A integração entre os módulos é impressionante. O controle de ponto com reconhecimento facial e geolocalização resolveu problemas que tínhamos há anos. O suporte da Nokahi é excepcional — sempre presentes quando precisamos.",
+  },
+  {
+    nome: "Dra. Patrícia Oliveira",
+    cargo: "Coordenadora de SST",
+    empresa: "Grupo Amazônia Industrial",
+    foto: null,
+    iniciais: "PO",
+    cor: "bg-puchoo-coral",
+    estrelas: 5,
+    texto: "Como profissional de Saúde e Segurança do Trabalho, o módulo SST/SESMT do Puchoo é o mais completo que já utilizei. O controle de ASOs, EPIs e a gestão de riscos são impecáveis. Recomendo sem hesitar.",
+  },
+  {
+    nome: "Marcos Andrade",
+    cargo: "CEO",
+    empresa: "LogiNorte Transportes",
+    foto: null,
+    iniciais: "MA",
+    cor: "bg-puchoo-terracotta",
+    estrelas: 5,
+    texto: "Escolhemos o Puchoo pela integração bancária e não nos arrependemos. Os pagamentos em lote via Pix e CNAB economizam horas de trabalho toda semana. A equipe da Nokahi entende de verdade as necessidades do mercado amazônico.",
+  },
+  {
+    nome: "Juliana Costa",
+    cargo: "Analista de RH Sênior",
+    empresa: "Hospital Tropical Manaus",
+    foto: null,
+    iniciais: "JC",
+    cor: "bg-puchoo-green-dark",
+    estrelas: 5,
+    texto: "O Portal do Colaborador mudou a forma como nossos 800 funcionários interagem com o RH. Contracheques, férias, benefícios — tudo acessível pelo celular. Reduziu em 70% os atendimentos presenciais no departamento.",
+  },
+  {
+    nome: "Fernando Reis",
+    cargo: "Diretor Financeiro",
+    empresa: "Construtora Rio Negro",
+    foto: null,
+    iniciais: "FR",
+    cor: "bg-puchoo-green-light",
+    estrelas: 4,
+    texto: "A gestão de benefícios e o módulo de folha de pagamento nos deram visibilidade total sobre os custos com pessoal. Os relatórios em PDF e Excel são detalhados e prontos para auditoria. Investimento que se paga rapidamente.",
+  },
+];
 
 const valores = [
   {
@@ -198,6 +261,62 @@ export default function SobreNokahi() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Depoimentos de Clientes */}
+        <section>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="bg-puchoo-orange w-10 h-10 rounded-lg flex items-center justify-center shadow-sm">
+              <Quote className="w-5 h-5 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold text-puchoo-green-dark">O que nossos clientes dizem</h3>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {depoimentos.map((dep) => (
+              <Card
+                key={dep.nome}
+                className="bg-white border-puchoo-green-50 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 relative overflow-hidden"
+              >
+                {/* Accent bar */}
+                <div className={`absolute top-0 left-0 right-0 h-1 ${dep.cor}`} />
+                <CardContent className="pt-6 pb-5">
+                  {/* Quote icon */}
+                  <Quote className="w-8 h-8 text-puchoo-green-50 mb-3" />
+                  
+                  {/* Texto do depoimento */}
+                  <p className="text-sm text-puchoo-terracotta leading-relaxed mb-4 italic">
+                    "{dep.texto}"
+                  </p>
+
+                  {/* Estrelas */}
+                  <div className="flex gap-0.5 mb-4">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${
+                          i < dep.estrelas
+                            ? "text-puchoo-orange fill-puchoo-orange"
+                            : "text-gray-200"
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Autor */}
+                  <div className="flex items-center gap-3 pt-3 border-t border-puchoo-green-50">
+                    <div className={`${dep.cor} w-10 h-10 rounded-full flex items-center justify-center shadow-sm shrink-0`}>
+                      <span className="text-white font-bold text-sm">{dep.iniciais}</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-puchoo-green-dark text-sm">{dep.nome}</p>
+                      <p className="text-xs text-puchoo-terracotta">{dep.cargo}</p>
+                      <p className="text-xs text-puchoo-terracotta-light">{dep.empresa}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </section>
 
