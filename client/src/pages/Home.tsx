@@ -211,6 +211,11 @@ export default function Home() {
             <p className="text-xs text-puchoo-terracotta-light mt-0.5">
               CNPJ 34.849.449/0001-40
             </p>
+            <Link href="/sobre">
+              <span className="text-xs text-puchoo-green hover:underline cursor-pointer mt-1 inline-block">
+                Conheça a Nokahi &rarr;
+              </span>
+            </Link>
           </div>
         </div>
       </main>

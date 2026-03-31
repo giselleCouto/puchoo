@@ -22,34 +22,35 @@ import Suporte from "./pages/Suporte";
 import Auditoria from "./pages/Auditoria";
 import AdminPermissoes from "./pages/AdminPermissoes";
 import Relatorios from "./pages/Relatorios";
+import SobreNokahi from "./pages/SobreNokahi";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      {/* 3.1 Folha de Pagamento */}
+      {/* Folha de Pagamento */}
       <Route path="/folha" component={FolhaPagamento} />
-      {/* 3.2 eSocial */}
+      {/* eSocial */}
       <Route path="/esocial" component={ESocialDashboard} />
-      {/* 3.3 Controle de Ponto */}
+      {/* Controle de Ponto */}
       <Route path="/ponto" component={PontoExpandido} />
-      {/* 3.4 Benefícios */}
+      {/* Benefícios */}
       <Route path="/beneficios" component={Beneficios} />
-      {/* 3.5 SST/SESMT */}
+      {/* SST/SESMT */}
       <Route path="/sst" component={SST} />
-      {/* 3.6 Medicina Ocupacional */}
+      {/* Medicina Ocupacional */}
       <Route path="/medicina" component={MedicinaOcupacional} />
-      {/* 3.7 Gestão de Desempenho */}
+      {/* Gestão de Desempenho */}
       <Route path="/desempenho" component={Desempenho} />
-      {/* 3.9 Portal do Colaborador */}
+      {/* Portal do Colaborador */}
       <Route path="/portal-servidor" component={PortalServidor} />
-      {/* 3.11 Controle de Acesso */}
+      {/* Controle de Acesso */}
       <Route path="/acesso" component={ControleAcesso} />
-      {/* 3.12 Quadro de Vagas */}
+      {/* Quadro de Vagas */}
       <Route path="/quadro-vagas" component={QuadroVagas} />
-      {/* 3.13 Recrutamento e Seleção */}
+      {/* Recrutamento e Seleção */}
       <Route path="/recrutamento" component={Recrutamento} />
-      {/* 3.14 Suporte */}
+      {/* Suporte */}
       <Route path="/suporte" component={Suporte} />
       {/* Integração Bancária */}
       <Route path="/integracao-bancaria" component={IntegracaoBancaria} />
@@ -57,10 +58,12 @@ function Router() {
       <Route path="/lgpd" component={LGPDExpandido} />
       {/* Auditoria */}
       <Route path="/auditoria" component={Auditoria} />
-      {/* 3.15 Painel Administrativo */}
+      {/* Painel Administrativo */}
       <Route path="/admin" component={AdminPermissoes} />
       {/* Relatórios PDF/Excel */}
       <Route path="/relatorios" component={Relatorios} />
+      {/* Sobre a Nokahi */}
+      <Route path="/sobre" component={SobreNokahi} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

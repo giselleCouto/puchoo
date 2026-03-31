@@ -77,4 +77,12 @@
 - [x] Atualizar header e rodapé em todas as páginas
 - [x] Atualizar 19 páginas de módulos com nova paleta
 - [x] Garantir que clientes possam alterar branding via Settings (VITE_APP_TITLE/VITE_APP_LOGO)
-- [ ] Verificar build e push para GitHub
+- [x] Verificar build e push para GitHub
+
+## Página Institucional - Sobre a Nokahi
+- [x] Criar página SobreNokahi.tsx com informações da empresa
+- [x] Adicionar missão, visão, valores e CNPJ
+- [x] Adicionar links para redes sociais (LinkedIn, Instagram, Facebook, Website)
+- [x] Registrar rota /sobre no App.tsx
+- [x] Adicionar link no Home.tsx (rodapé "Conheça a Nokahi")
+- [x] Verificar build e push para GitHub
