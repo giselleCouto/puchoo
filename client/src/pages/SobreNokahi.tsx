@@ -1,11 +1,17 @@
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { APP_LOGO, APP_TITLE } from "@/const";
 import { Link } from "wouter";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 import {
   ArrowLeft, Building2, Target, Eye, Heart, Globe, Mail, Phone,
   MapPin, Linkedin, Instagram, Facebook, ExternalLink, Users,
-  ShieldCheck, Lightbulb, Handshake, Award, Leaf, Quote, Star
+  ShieldCheck, Lightbulb, Handshake, Award, Leaf, Quote, Star,
+  Send, Loader2, CheckCircle2, User, AtSign, MessageSquare
 } from "lucide-react";
 
 const depoimentos = [
@@ -116,6 +122,161 @@ const diferenciais = [
   { numero: "LGPD", label: "Totalmente Conforme" },
   { numero: "24/7", label: "Suporte Disponível" },
 ];
+
+function FormularioContato() {
+  const [form, setForm] = useState({ nome: "", email: "", telefone: "", assunto: "", mensagem: "" });
+  const [enviado, setEnviado] = useState(false);
+
+  const enviarMutation = trpc.contato.enviar.useMutation({
+    onSuccess: (data) => {
+      toast.success(data.message);
+      setEnviado(true);
+      setForm({ nome: "", email: "", telefone: "", assunto: "", mensagem: "" });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao enviar mensagem. Tente novamente.");
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.nome || !form.email || !form.assunto || !form.mensagem) {
+      toast.error("Preencha todos os campos obrigatórios.");
+      return;
+    }
+    enviarMutation.mutate(form);
+  };
+
+  if (enviado) {
+    return (
+      <section className="bg-white rounded-xl shadow-sm border border-puchoo-green-50 p-8">
+        <div className="text-center py-8">
+          <div className="w-16 h-16 bg-puchoo-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle2 className="w-8 h-8 text-puchoo-green" />
+          </div>
+          <h3 className="text-xl font-bold text-puchoo-green-dark mb-2">Mensagem Enviada!</h3>
+          <p className="text-sm text-puchoo-terracotta mb-6 max-w-md mx-auto">
+            Obrigado pelo contato! Nossa equipe receberá sua mensagem e retornará em até 24 horas úteis.
+          </p>
+          <Button
+            onClick={() => setEnviado(false)}
+            variant="outline"
+            className="gap-2 text-puchoo-green-dark border-puchoo-green-50 hover:bg-puchoo-green-50"
+          >
+            <Send className="w-4 h-4" />Enviar outra mensagem
+          </Button>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="bg-white rounded-xl shadow-sm border border-puchoo-green-50 p-8">
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-2 bg-puchoo-green-50 text-puchoo-green-dark px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+          <MessageSquare className="w-4 h-4" />
+          Fale Conosco
+        </div>
+        <h2 className="text-2xl font-bold text-puchoo-green-dark mb-2">Envie sua Mensagem</h2>
+        <p className="text-sm text-puchoo-terracotta max-w-2xl mx-auto">
+          Tem alguma dúvida, sugestão ou deseja saber mais sobre nossas soluções? 
+          Preencha o formulário abaixo e nossa equipe entrará em contato.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-puchoo-green-dark flex items-center gap-1.5">
+              <User className="w-3.5 h-3.5 text-puchoo-green" />
+              Nome completo <span className="text-puchoo-coral">*</span>
+            </label>
+            <Input
+              placeholder="Seu nome"
+              value={form.nome}
+              onChange={(e) => setForm({ ...form, nome: e.target.value })}
+              className="border-puchoo-green-50 focus:border-puchoo-green focus:ring-puchoo-green/20"
+              required
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-puchoo-green-dark flex items-center gap-1.5">
+              <AtSign className="w-3.5 h-3.5 text-puchoo-green" />
+              E-mail <span className="text-puchoo-coral">*</span>
+            </label>
+            <Input
+              type="email"
+              placeholder="seu@email.com"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              className="border-puchoo-green-50 focus:border-puchoo-green focus:ring-puchoo-green/20"
+              required
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-puchoo-green-dark flex items-center gap-1.5">
+              <Phone className="w-3.5 h-3.5 text-puchoo-green" />
+              Telefone
+            </label>
+            <Input
+              placeholder="(00) 00000-0000"
+              value={form.telefone}
+              onChange={(e) => setForm({ ...form, telefone: e.target.value })}
+              className="border-puchoo-green-50 focus:border-puchoo-green focus:ring-puchoo-green/20"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-puchoo-green-dark flex items-center gap-1.5">
+              <Mail className="w-3.5 h-3.5 text-puchoo-green" />
+              Assunto <span className="text-puchoo-coral">*</span>
+            </label>
+            <Input
+              placeholder="Assunto da mensagem"
+              value={form.assunto}
+              onChange={(e) => setForm({ ...form, assunto: e.target.value })}
+              className="border-puchoo-green-50 focus:border-puchoo-green focus:ring-puchoo-green/20"
+              required
+            />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-puchoo-green-dark flex items-center gap-1.5">
+            <MessageSquare className="w-3.5 h-3.5 text-puchoo-green" />
+            Mensagem <span className="text-puchoo-coral">*</span>
+          </label>
+          <Textarea
+            placeholder="Descreva sua dúvida, sugestão ou solicitação..."
+            value={form.mensagem}
+            onChange={(e) => setForm({ ...form, mensagem: e.target.value })}
+            className="border-puchoo-green-50 focus:border-puchoo-green focus:ring-puchoo-green/20 min-h-[120px] resize-y"
+            required
+          />
+        </div>
+
+        <div className="flex items-center justify-between pt-2">
+          <p className="text-xs text-puchoo-terracotta-light">
+            <span className="text-puchoo-coral">*</span> Campos obrigatórios
+          </p>
+          <Button
+            type="submit"
+            disabled={enviarMutation.isPending}
+            className="bg-puchoo-orange hover:bg-puchoo-coral text-white gap-2 shadow-md px-8"
+          >
+            {enviarMutation.isPending ? (
+              <><Loader2 className="w-4 h-4 animate-spin" />Enviando...</>
+            ) : (
+              <><Send className="w-4 h-4" />Enviar Mensagem</>
+            )}
+          </Button>
+        </div>
+      </form>
+    </section>
+  );
+}
 
 export default function SobreNokahi() {
   return (
@@ -443,6 +604,9 @@ export default function SobreNokahi() {
             </Card>
           </div>
         </section>
+
+        {/* Formulário de Contato */}
+        <FormularioContato />
 
         {/* CTA Final */}
         <section className="text-center bg-white rounded-xl shadow-sm border border-puchoo-green-50 p-8">

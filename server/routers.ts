@@ -5,6 +5,7 @@ import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { gerarContracheque, gerarEspelhoPonto, gerarRelatorioSST, gerarRelatorioFolhaExcel, gerarRelatorioPontoExcel } from "./relatorios";
+import { notifyOwner } from "./_core/notification";
 
 const genId = () => `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
@@ -1123,6 +1124,62 @@ export const appRouter = router({
         });
         const buffer = await gerarRelatorioPontoExcel(input.mes, input.ano);
         return { base64: buffer.toString("base64"), filename: `ponto_${input.mes}_${input.ano}.xlsx`, type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
+      }),
+  }),
+
+  // =============================================
+  // CONTATO: Formulário de Contato
+  // =============================================
+  contato: router({
+    enviar: publicProcedure
+      .input(z.object({
+        nome: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
+        email: z.string().email("E-mail inválido"),
+        telefone: z.string().optional(),
+        assunto: z.string().min(3, "Assunto deve ter pelo menos 3 caracteres"),
+        mensagem: z.string().min(10, "Mensagem deve ter pelo menos 10 caracteres"),
+      }))
+      .mutation(async ({ input }) => {
+        const id = genId();
+        // Salvar no banco de dados
+        await db.salvarMensagemContato({
+          id,
+          nome: input.nome,
+          email: input.email,
+          telefone: input.telefone || null,
+          assunto: input.assunto,
+          mensagem: input.mensagem,
+        });
+
+        // Notificar o proprietário via notifyOwner
+        await notifyOwner({
+          title: `Nova mensagem de contato: ${input.assunto}`,
+          content: [
+            `**De:** ${input.nome} (${input.email})`,
+            input.telefone ? `**Telefone:** ${input.telefone}` : "",
+            `**Assunto:** ${input.assunto}`,
+            "",
+            `**Mensagem:**`,
+            input.mensagem,
+            "",
+            `---`,
+            `Enviado em: ${new Date().toLocaleString("pt-BR", { timeZone: "America/Manaus" })}`,
+          ].filter(Boolean).join("\n"),
+        });
+
+        return { success: true, id, message: "Mensagem enviada com sucesso! Entraremos em contato em breve." };
+      }),
+
+    listar: protectedProcedure
+      .query(async () => {
+        return await db.listarMensagensContato();
+      }),
+
+    marcarLida: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ input }) => {
+        await db.marcarMensagemLida(input.id);
+        return { success: true };
       }),
   }),
 });

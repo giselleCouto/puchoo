@@ -1,7 +1,6 @@
 import { eq, and, desc, sql, gte, lte, like, count, sum, isNull } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import {
-  InsertUser, users, perfis, gruposUsuarios, auditoria,
+import { InsertUser, users, perfis,gruposUsuarios, auditoria,
   colaboradores, dependentes, folhaPagamento, ferias, rescisao,
   esocialEventos, pontoRegistros, pontoEscalas, bancoHoras, feriados,
   beneficios, emprestimosConsignados,
@@ -12,7 +11,7 @@ import {
   visitantes, acessosPortaria,
   quadroVagas, vagasRecrutamento, candidatos,
   chamados, lgpdConsentimentos, lgpdSolicitacoes,
-  integracaoPagamentos, treinamentos,
+  integracaoPagamentos, treinamentos, mensagensContato,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -569,4 +568,40 @@ export async function getGruposUsuariosList() {
   const db = await getDb();
   if (!db) return [];
   return db.select().from(gruposUsuarios).orderBy(gruposUsuarios.nome);
+}
+
+
+// =============================================
+// CONTATO: Mensagens do Formulário
+// =============================================
+export async function salvarMensagemContato(data: {
+  id: string;
+  nome: string;
+  email: string;
+  telefone?: string | null;
+  assunto: string;
+  mensagem: string;
+}) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(mensagensContato).values({
+    id: data.id,
+    nome: data.nome,
+    email: data.email,
+    telefone: data.telefone || null,
+    assunto: data.assunto,
+    mensagem: data.mensagem,
+  });
+}
+
+export async function listarMensagensContato() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(mensagensContato).orderBy(desc(mensagensContato.createdAt)).limit(100);
+}
+
+export async function marcarMensagemLida(id: string) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(mensagensContato).set({ lida: true }).where(eq(mensagensContato.id, id));
 }

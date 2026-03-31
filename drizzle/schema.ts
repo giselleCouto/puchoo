@@ -613,3 +613,22 @@ export const treinamentos = mysqlTable("treinamentos", {
   status: mysqlEnum("status", ["agendado", "em_andamento", "concluido", "cancelado"]).default("agendado"),
   createdAt: timestamp("createdAt").defaultNow(),
 });
+
+
+// =============================================
+// CONTATO: Mensagens do Formulário
+// =============================================
+export const mensagensContato = mysqlTable("mensagens_contato", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  nome: varchar("nome", { length: 200 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  telefone: varchar("telefone", { length: 30 }),
+  assunto: varchar("assunto", { length: 300 }).notNull(),
+  mensagem: text("mensagem").notNull(),
+  lida: boolean("lida").default(false),
+  respondida: boolean("respondida").default(false),
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type MensagemContato = typeof mensagensContato.$inferSelect;
+export type InsertMensagemContato = typeof mensagensContato.$inferInsert;

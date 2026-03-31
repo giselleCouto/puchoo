@@ -91,3 +91,12 @@
 - [x] Adicionar seção de depoimentos na página SobreNokahi.tsx
 - [x] Design com cards de depoimentos, iniciais, nomes, cargos, empresas e estrelas
 - [x] Verificar build e push para GitHub
+
+## Formulário de Contato Funcional
+- [x] Criar rota tRPC `contato.enviar` no backend com notifyOwner
+- [x] Salvar mensagens de contato no banco de dados (tabela mensagens_contato)
+- [x] Adicionar formulário de contato na página SobreNokahi.tsx
+- [x] Validação de campos (nome, e-mail, assunto, mensagem) com Zod
+- [x] Feedback visual de envio (loading spinner, tela de sucesso, toast de erro)
+- [x] Rotas adicionais: listar mensagens e marcar como lida (admin)
+- [x] Verificar build, testes e push para GitHub
