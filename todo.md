@@ -38,7 +38,7 @@
 - [x] Implementar barra de navegação horizontal persistente (header sticky)
 
 ## Testes
-- [x] Vitest: 11 testes passando (routers + schema + relatórios + permissões + supabase)
+- [x] Vitest: 25 testes passando (7 unitários + 18 integração) + 1 Supabase (DNS sandbox)
 - [x] Build de produção compilando sem erros
 - [x] Servidor de desenvolvimento rodando
 
@@ -100,3 +100,12 @@
 - [x] Feedback visual de envio (loading spinner, tela de sucesso, toast de erro)
 - [x] Rotas adicionais: listar mensagens e marcar como lida (admin)
 - [x] Verificar build, testes e push para GitHub
+
+## Testes de Integração - Folha de Pagamento e Ponto
+- [x] Ler schema, rotas e db helpers dos módulos de Folha e Ponto
+- [x] Criar testes de integração para Folha de Pagamento (CRUD colaboradores, cálculo folha, férias, contracheque)
+- [x] Criar testes de integração para Ponto (registro entrada/saída, jornada completa, geolocalização, escalas, banco de horas, espelho de ponto)
+- [x] Criar teste de fluxo completo (Admissão → Ponto → Folha)
+- [x] Executar testes: 25/25 passando (7 unitários + 18 integração)
+- [x] Corrigir erro de periodoAquisitivo (varchar length) e SQL de limpeza
+- [ ] Salvar checkpoint e push para GitHub
